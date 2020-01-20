@@ -145,37 +145,38 @@ client.on('message', msg => {
 	}
 });
 
-client.on('ready', () => {
+client.on('ready', () => { // This event fires once the client has successfully logged into Discord.
 	console.log(`Connected to Discord as ${client.user.tag}`);
+	// Set the bot user's status (the playing status)
 	client.user.setPresence({
 		game: {
 			name: config.presence,
 			type: 'PLAYING',
-			url: 'https://www.youtube.com/watch?v=oHg5SJYRHA0'
+			url: 'https://www.youtube.com/watch?v=oHg5SJYRHA0' // this does nothing unless the type is set to STREAMING
 		}
 	}).then(promise => console.log('Successfully set presence status.'))
 	.catch(err => `Failed to set presence status. More details: \n${err}`);
 });
 
-client.on('reconnecting', ()=>{
+client.on('reconnecting', ()=>{	// This should fire when something goes wrong inbetween connections.
 	console.log(`Attempting to reconnect...`);
 });
 
-client.on('disconnect', (event) => {
+client.on('disconnect', (event) => { // This event only fires if the client has been disconnected and is not supposed to attempt reconnections (e.g. wrong token provided)
 	console.log(`Disconnected from Discord. Restart the script to reconnect. Details:\n${event}`);
 });
 
-client.on('rateLimit', (rateLimit) => {
+client.on('rateLimit', (rateLimit) => { // Well, this fires once the ratelimit for the bot was reached (discord-side)
 	console.log(`Rate limit reached. Details:\n${rateLimit}`);
 });
 
-client.on('warn', (warning) => {
+client.on('warn', (warning) => { // Generic warnings that discord.js fires off are caught by this
 	console.log(warning);
 });
 
-client.on('error', (error) => {
+client.on('error', (error) => { // This fires on connection errors (like your ip changing from your internet disconnecting again for fucks sake MOM STOP CALLING WHEN I'M PLAYING VIDEO GAMES SHEESH)
 	console.log(`Encountered a connection error. Details:\n${error}`);
 });
 
-// Log in to Discord once the important stuff is done
+// Actually log in to Discord - do this at the end as soon as all events have been created or at least marked for creation
 client.login(token);
