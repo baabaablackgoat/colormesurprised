@@ -1,11 +1,21 @@
 module.exports = {
 	// hello and welcome to the most amazing config file ever <w< /s
+	// Side note: some things might not immediately appear in here, they might not at all, but I'll try to keep this as full of feature tweaking options as possible
 
 	// Enable Debug mode - your console will be full of  i n f o r m a t i o n  and  g n a w l e d g e
 	debug_mode: true,
 
 	// Set the prefix(es) the bot listens to. Messages that don't have this prefix are skipped entirely.
 	prefix: 'color me ',
+
+	// The keywords following the prefixes that trigger special commands. Make sure these aren't actual colors, or the color dictionary may make certain commands uncallable.
+	commands: {
+		help: '?',
+		echo_color: 'intrigued',
+		random_color: 'surprised',
+		admin_ban_user: 'but not',
+		admin_unban_user: 'but also'
+	},
 
 	// The status messages the bot shows!
 	presences: [
@@ -29,6 +39,8 @@ module.exports = {
 		no_permission: 'I couldn\'t change your color because I dont have the permission to do that... ;w; Ask your local administrator to look into this!',
 		generic_error: 'something went wrong... I\'m so sorry ;^; Please try again later...',
 		change_successful: 'I have changed the color of role "$roleName" to $requestedColor! *hugs*',
+		echo_color: 'you currently have the color $roleColor on your role $roleName! *huggles*',
+		echo_color_failed: 'you don\'t seem to have any role that gives you a color... ;w;',
 	},
 
 	// Roles that have any of these permissions are banned from being changed by this bot to avoid changing administrative colors.

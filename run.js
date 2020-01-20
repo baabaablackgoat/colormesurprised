@@ -4,6 +4,7 @@ const client = new Discord.Client();
 const token = fs.readFileSync('token.txt', 'utf8').trim();
 let config = require('./config.js');
 const getColor = require('./func/getColor.js');
+const commands = require('./func/commands.js');
 
 // Message handler
 client.on('message', msg => {
@@ -40,8 +41,20 @@ client.on('message', msg => {
 		}
 
 		// Check if the user's message contains a valid color (in hexadecimal format). If not, alert and skip.
-		let requestedColor = getColor(msg.content.replace(config.prefix, '').trim());
-		if (requestedColor == false){ // If match fails, alert the user
+		let msgContTrimmed = msg.content.replace(config.prefix, '').trim();
+		let requestedColor = getColor(msgContTrimmed);
+		if (requestedColor == false){
+			// If match fails, check if a command was supposed to be invoked instead
+			let requestedCommand = Object.keys(config.commands).filter((key)=>{return config.commands[key] == msgContTrimmed.toLowerCase();});
+			if (requestedCommand.length == 1) { // Found one command and one command only
+				commands[requestedCommand[0]](msg);
+				return;
+			} else if (requestedCommand.length > 1) {
+				console.log(`User requested to run command ${msgContTrimmed} but multiple commands matched the filter. Double check your config.js`);
+			}
+
+
+			// if neither a color nor a command were supplied, raise the not_a_color error
 			msg.reply(config.replies.not_a_color)
 				.then(reply => {
 					if (config.debug_mode) {
