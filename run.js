@@ -147,6 +147,13 @@ client.on('message', msg => {
 
 client.on('ready', () => {
 	console.log(`Connected to Discord as ${client.user.tag}`);
+	client.user.setPresence({
+		game: {
+			name: 'with all the heckin colors!',
+			type: 'PLAYING',
+			url: 'https://www.youtube.com/watch?v=oHg5SJYRHA0'
+		}
+	}).then(console.log).catch(console.error);
 });
 
 client.on('reconnecting', ()=>{
