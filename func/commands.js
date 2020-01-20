@@ -5,6 +5,7 @@ module.exports.echo_color = echo_color;
 module.exports.random_color = random_color;
 module.exports.admin_ban_user = admin_ban_user;
 module.exports.admin_unban_user = admin_unban_user;
+module.exports.support = support;
 
 const helpEmbed = new Discord.RichEmbed({
 	author: {name: 'Color me surprised', icon_url: 'https://i.imgur.com/40ynGjv.png', url: 'https://baabaablackgoat.com'},
@@ -59,4 +60,8 @@ function admin_ban_user(msg) {
 
 function admin_unban_user(msg) {
 	msg.channel.send('Banning and unbanning has not been implemented yet - soon though, maybe... ;w;');
+}
+
+function support(msg) {
+	msg.channel.send('Awh, shucks... I appreciate the sentiment, but all I could really ask for is a hug ;w; ♡');
 }

@@ -14,7 +14,8 @@ module.exports = {
 		echo_color: 'intrigued',
 		random_color: 'surprised',
 		admin_ban_user: 'but not',
-		admin_unban_user: 'but also'
+		admin_unban_user: 'but also',
+		support: 'supportive'
 	},
 
 	// The status messages the bot shows!
