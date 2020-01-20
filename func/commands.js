@@ -1,5 +1,7 @@
 const Discord = require('discord.js');
 const config = require('./../config.js');
+const changeMemberColor = require('./changeMemberColor.js');
+const colorList = require('./../data/colorList.js');
 module.exports.help = help;
 module.exports.echo_color = echo_color;
 module.exports.random_color = random_color;
@@ -51,7 +53,8 @@ function echo_color(msg) {
 }
 
 function random_color(msg) {
-	msg.channel.send('soon:tm:');
+	// To avoid getting ugly colors, random_color takes the colorList and picks one out of there
+	changeMemberColor(msg, colorList[Object.keys(colorList)[Math.floor(Math.random() * Object.keys(colorList).length)]]);
 }
 
 function admin_ban_user(msg) {
