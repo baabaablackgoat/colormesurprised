@@ -54,16 +54,18 @@ client.on('message', msg => {
 			}
 
 
-			// if neither a color nor a command were supplied, raise the not_a_color error
-			msg.reply(config.replies.not_a_color)
-				.then(reply => {
-					if (config.debug_mode) {
-						console.log(`User requested to change color, but supplied invalid color ${requestedColor}, issued by ${msg.author.tag} in ${msg.guild.name}`);
-					}
-				})
-				.catch(err => {
-					console.log(`Failed to reply to a message requesting a color change that failed because invalid color ${requestedColor} was supplied. Error details: \n${err}`);
-				});
+			// if neither a color nor a command were supplied, raise the not_a_color  (if not disabled through config)
+			if (config.reply_on_invalid){
+				msg.reply(config.replies.not_a_color)
+					.then(reply => {
+						if (config.debug_mode) {
+							console.log(`User requested to change color, but supplied invalid color ${requestedColor}, issued by ${msg.author.tag} in ${msg.guild.name}`);
+						}
+					})
+					.catch(err => {
+						console.log(`Failed to reply to a message requesting a color change that failed because invalid color ${requestedColor} was supplied. Error details: \n${err}`);
+					});
+			}
 			return;
 		}
 

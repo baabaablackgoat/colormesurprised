@@ -29,6 +29,9 @@ module.exports = {
 	// The time interval in which the bot changes his presence message in milliseconds. Don't make this less than 30000 or you WILL be ratelimited all the time, trust me.
 	presence_interval: 60000,
 
+	// Determines whether the bot should complain if the prefix was triggered, but no valid command or color was found. Useful if your prefix is ambiguous.
+	reply_on_invalid: true,
+
 	// Basically the dictionary of replies. 
 	replies: {
 		wrong_channel: 'Hey! I appreciate you giving me attention, but I really can\'t work outside of a server channel ;w;\nYou can have a big hug from me though, instead... *huggles*',
