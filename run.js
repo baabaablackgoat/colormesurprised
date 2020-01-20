@@ -147,15 +147,21 @@ client.on('message', msg => {
 
 client.on('ready', () => { // This event fires once the client has successfully logged into Discord.
 	console.log(`Connected to Discord as ${client.user.tag}`);
-	// Set the bot user's status (the playing status)
-	client.user.setPresence({
-		game: {
-			name: config.presence,
-			type: 'PLAYING',
-			url: 'https://www.youtube.com/watch?v=oHg5SJYRHA0' // this does nothing unless the type is set to STREAMING
-		}
-	}).then(promise => console.log('Successfully set presence status.'))
-	.catch(err => `Failed to set presence status. More details: \n${err}`);
+	// Set the bot user's status (the playing status) and changes it on a regular basis ("interval")
+	let presenceInterval = bot.setInterval(() => {
+		let presence_index = Math.floor(Math.random() * config.presences.size);
+		client.user.setPresence({
+			game: {
+				name: config.presences[presence_index].name,
+				type: config.presences[presence_index].type
+			}
+		}).then(promise => {
+			if (config.debug_mode) {
+				console.log('Successfully set presence status.');
+			}
+		})
+		.catch(err => `Failed to set presence status. More details: \n${err}`);
+	}, config.presence_interval);
 });
 
 client.on('reconnecting', ()=>{	// This should fire when something goes wrong inbetween connections.

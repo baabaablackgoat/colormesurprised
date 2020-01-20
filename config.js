@@ -7,9 +7,17 @@ module.exports = {
 	// Set the prefix(es) the bot listens to. Messages that don't have this prefix are skipped entirely.
 	prefix: 'color me ',
 
-	// The status messages the bot shows! Will eventually maybe cycle through a few~
-	presence: 'with all the heckin colors!',
-	
+	// The status messages the bot shows!
+	presences: [
+		{ name: 'with all the heckin colors!', type: 'PLAYING'},
+		{ name: 'https://github.com/baabaablackgoat/colormesurprised for new issues', type: 'WATCHING'},
+		{ name: 'probably another rick roll', type: 'LISTENING'},
+		{ name: 'nothing uwu weave me awone am angy', type: 'STREAMING'} 
+	],
+
+	// The time interval in which the bot changes his presence message in milliseconds. Don't make this less than 30000 or you WILL be ratelimited all the time, trust me.
+	presence_interval: 30000,
+
 	// Basically the dictionary of replies. 
 	replies: {
 		wrong_channel: 'Hey! I appreciate you giving me attention, but I really can\'t work outside of a server channel ;w;\nYou can have a big hug from me though, instead... *huggles*',
