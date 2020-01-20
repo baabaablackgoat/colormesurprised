@@ -43,7 +43,7 @@ function getColor(inp = ''){
         }
     }
     return false;
-};
+}
 
 
 /* test cases - leave these commented out or you will be confused */

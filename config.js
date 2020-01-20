@@ -22,7 +22,7 @@ module.exports = {
 	replies: {
 		wrong_channel: 'Hey! I appreciate you giving me attention, but I really can\'t work outside of a server channel ;w;\nYou can have a big hug from me though, instead... *huggles*',
 		no_role: 'you don\'t seem to have any roles assigned to you... ;w;\nYou need at least one role (that isn\'t administrative) to be able to change your color!',
-		not_a_color: 'that doesn\'t look like a color to me... Please give me your requested color in a hexadecimal format! (Like this: #420420)' ,
+		not_a_color: 'that doesn\'t look like a color to me... I understand hexadecimal (`#fff` or `#420420`), RGB (`(255,128,0)`) and the css color list (`pink`, `lightblue` ...)' ,
 		role_permission_blacklisted: 'the role that defines your color has one or more permissions that are blacklisted from being changed.',
 		no_color_role: 'even though you have roles, I couldn\'t find a role that sets your color! To prevent me from changing an important role, I won\'t change your color... for now. In a future update, I\'ll try my best to do that for you!',
 		same_color: 'you already have this color... ;w; If it doesn\'t show up, you might need to ask your administrator about this xwx',
