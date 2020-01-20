@@ -50,7 +50,7 @@ client.on('message', msg => {
 				})
 				.catch(err => {
 					console.log(`Failed to reply to a message requesting a color change that failed because invalid color ${requestedColor} was supplied. Error details: \n${err}`);
-				})
+				});
 			return;
 		}
 
@@ -147,7 +147,7 @@ client.on('message', msg => {
 
 client.on('ready', () => {
 	console.log(`Connected to Discord as ${client.user.tag}`);
-})
+});
 
 client.on('reconnecting', ()=>{
 	console.log(`Attempting to reconnect...`);
@@ -155,15 +155,15 @@ client.on('reconnecting', ()=>{
 
 client.on('disconnect', (event) => {
 	console.log(`Disconnected from Discord. Restart the script to reconnect. Details:\n${event}`);
-})
+});
 
 client.on('rateLimit', (rateLimit) => {
 	console.log(`Rate limit reached. Details:\n${rateLimit}`);
-})
+});
 
 client.on('warn', (warning) => {
 	console.log(warning);
-})
+});
 
 client.on('error', (error) => {
 	console.log(`Encountered a connection error. Details:\n${error}`);
