@@ -38,4 +38,4 @@ module.exports = {
 		'KICK_MEMBERS',
 		'MANAGE_CHANNELS'
 	]
-}
+};

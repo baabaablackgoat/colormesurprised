@@ -145,23 +145,27 @@ client.on('message', msg => {
 	}
 });
 
+let presenceInterval;
 client.on('ready', () => { // This event fires once the client has successfully logged into Discord.
 	console.log(`Connected to Discord as ${client.user.tag}`);
 	// Set the bot user's status (the playing status) and changes it on a regular basis ("interval")
-	let presenceInterval = client.setInterval(() => {
-		let presence_index = Math.floor(Math.random() * config.presences.length);
-		client.user.setPresence({
-			game: {
-				name: config.presences[presence_index].name,
-				type: config.presences[presence_index].type
-			}
-		}).then(promise => {
-			if (config.debug_mode) {
-				console.log('Successfully set presence status.');
-			}
-		})
-		.catch(err => `Failed to set presence status. More details: \n${err}`);
-	}, config.presence_interval);
+	if (!presenceInterval) { // bit of an afterthought - avoid creating multiple intervals in case the bot accidentally disconnects or something
+		presenceInterval = client.setInterval(() => {
+			let presence_index = Math.floor(Math.random() * config.presences.length);
+			client.user.setPresence({
+				game: {
+					name: config.presences[presence_index].name,
+					type: config.presences[presence_index].type
+				}
+			}).then(promise => {
+				if (config.debug_mode) {
+					console.log('Successfully set presence status.');
+				}
+			})
+			.catch(err => `Failed to set presence status. More details: \n${err}`);
+		}, config.presence_interval);
+	}
+	
 });
 
 client.on('reconnecting', ()=>{	// This should fire when something goes wrong inbetween connections.
