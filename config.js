@@ -7,6 +7,9 @@ module.exports = {
 	// Set the prefix(es) the bot listens to. Messages that don't have this prefix are skipped entirely.
 	prefix: 'color me ',
 
+	// The status messages the bot shows! Will eventually maybe cycle through a few~
+	presence: 'with all the heckin colors!',
+	
 	// Basically the dictionary of replies. 
 	replies: {
 		wrong_channel: 'Hey! I appreciate you giving me attention, but I really can\'t work outside of a server channel ;w;\nYou can have a big hug from me though, instead... *huggles*',

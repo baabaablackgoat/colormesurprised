@@ -149,11 +149,12 @@ client.on('ready', () => {
 	console.log(`Connected to Discord as ${client.user.tag}`);
 	client.user.setPresence({
 		game: {
-			name: 'with all the heckin colors!',
+			name: config.presence,
 			type: 'PLAYING',
 			url: 'https://www.youtube.com/watch?v=oHg5SJYRHA0'
 		}
-	}).then(console.log).catch(console.error);
+	}).then(promise => console.log('Successfully set presence status.'))
+	.catch(err => `Failed to set presence status. More details: \n${err}`);
 });
 
 client.on('reconnecting', ()=>{
