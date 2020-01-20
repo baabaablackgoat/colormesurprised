@@ -3,7 +3,7 @@ const fs = require('fs');
 const client = new Discord.Client();
 const token = fs.readFileSync('token.txt', 'utf8').trim();
 let config = require('./config.js');
-
+const getColor = require('./func/getColor.js');
 
 // Message handler
 client.on('message', msg => {
@@ -189,4 +189,4 @@ client.on('error', (error) => { // This fires on connection errors (like your ip
 });
 
 // Actually log in to Discord - do this at the end as soon as all events have been created or at least marked for creation
-client.login(token);
+// client.login(token);
