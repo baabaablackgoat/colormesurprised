@@ -40,8 +40,8 @@ client.on('message', msg => {
 		}
 
 		// Check if the user's message contains a valid color (in hexadecimal format). If not, alert and skip.
-		let requestedColor = msg.content.replace(config.prefix, '').trim();
-		if (/^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$/.test(requestedColor) == false){ // If match fails, alert the user
+		let requestedColor = getColor(msg.content.replace(config.prefix, '').trim());
+		if (requestedColor == false){ // If match fails, alert the user
 			msg.reply(config.replies.not_a_color)
 				.then(reply => {
 					if (config.debug_mode) {
@@ -189,4 +189,4 @@ client.on('error', (error) => { // This fires on connection errors (like your ip
 });
 
 // Actually log in to Discord - do this at the end as soon as all events have been created or at least marked for creation
-// client.login(token);
+client.login(token);

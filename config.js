@@ -16,7 +16,7 @@ module.exports = {
 	],
 
 	// The time interval in which the bot changes his presence message in milliseconds. Don't make this less than 30000 or you WILL be ratelimited all the time, trust me.
-	presence_interval: 30000,
+	presence_interval: 60000,
 
 	// Basically the dictionary of replies. 
 	replies: {
