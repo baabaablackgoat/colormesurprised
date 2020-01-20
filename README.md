@@ -2,7 +2,7 @@
 
 A small discord bot project intended for small servers where users can pick their own color using this bot!
 
-Yeah, I know, this is still code that's ugly as hecc, but heck u
+Yeah, I know, this is still code that's ugly as hecc, but heck u, I made dis in like two hours
 
 ## Setup
 - If you haven't already, install node.js on the machine you want this to run on. Get it here: https://nodejs.org/en/
