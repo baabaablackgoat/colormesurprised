@@ -149,7 +149,7 @@ client.on('ready', () => { // This event fires once the client has successfully 
 	console.log(`Connected to Discord as ${client.user.tag}`);
 	// Set the bot user's status (the playing status) and changes it on a regular basis ("interval")
 	let presenceInterval = client.setInterval(() => {
-		let presence_index = Math.floor(Math.random() * config.presences.size);
+		let presence_index = Math.floor(Math.random() * config.presences.length);
 		client.user.setPresence({
 			game: {
 				name: config.presences[presence_index].name,
