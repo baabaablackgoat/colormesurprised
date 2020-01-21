@@ -20,10 +20,10 @@ module.exports = {
 
 	// The status messages the bot shows!
 	presences: [
+		{ name: 'with r a i n b o w s', type: 'PLAYING'},
 		{ name: 'with all the heckin colors!', type: 'PLAYING'},
-		{ name: 'https://github.com/baabaablackgoat/colormesurprised for new issues', type: 'WATCHING'},
-		{ name: 'probably another rick roll', type: 'LISTENING'},
-		{ name: 'nothing uwu weave me awone am angy', type: 'STREAMING'} 
+		{ type: 'PLAYING', name: 'with coloUrs, not colors'},
+		{ name: 'probably another rick roll', type: 'LISTENING'}, 
 	],
 
 	// The time interval in which the bot changes his presence message in milliseconds. Don't make this less than 30000 or you WILL be ratelimited all the time, trust me.
