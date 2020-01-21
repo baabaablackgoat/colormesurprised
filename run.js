@@ -7,7 +7,7 @@ let config = require('./config.js');
 const getColor = require('./func/getColor.js');
 const commands = require('./func/commands.js');
 const changeMemberColor = require('./func/changeMemberColor.js');
-let globals;
+let globals = {};
 
 if (fs.existsSync(serverSettingsPath)) {
 	globals.serverSettings = JSON.parse(fs.readFileSync(serverSettingsPath));
@@ -129,7 +129,7 @@ client.on('ready', () => { // This event fires once the client has successfully 
 	}
 
 	if (!saveSettingsInterval) {
-		saveSettingsInterval = client.setInterval(saveSettings, config.save_interval);
+		saveSettingsInterval = client.setInterval(saveServerSettings, config.save_interval);
 	}
 });
 
