@@ -7,17 +7,17 @@ let config = require('./config.js');
 const getColor = require('./func/getColor.js');
 const commands = require('./func/commands.js');
 const changeMemberColor = require('./func/changeMemberColor.js');
-let serverSettings;
+let globals;
 
 if (fs.existsSync(serverSettingsPath)) {
-	serverSettings = JSON.parse(fs.readFileSync(serverSettingsPath));
+	globals.serverSettings = JSON.parse(fs.readFileSync(serverSettingsPath));
 } else {
-	serverSettings = {};
+	globals.serverSettings = {};
 	fs.writeFileSync(serverSettingsPath, '{}');
 }
 
 function saveServerSettings() {
-	fs.writeFile(serverSettingsPath, JSON.stringify(serverSettings), (err)=>{
+	fs.writeFile(serverSettingsPath, JSON.stringify(globals.serverSettings), (err)=>{
 		if (err) {console.log('Failed to save serverSettings:\n'+err);}
 		else if (config.debug_mode){console.log('serverSettings have been saved.');}
 	});
@@ -44,8 +44,8 @@ client.on('message', msg => {
 	// Check if the sent message has the configured prefix. If not, skip. 
 	if (msg.content.startsWith(config.prefix)) {
 
-		if (msg.guild.id in serverSettings == false) { // the targeted server isn't represented in the settings yet, create and save
-			serverSettings[msg.guild.id] = {
+		if (msg.guild.id in globals.serverSettings == false) { // the targeted server isn't represented in the settings yet, create and save
+			globals.serverSettings[msg.guild.id] = {
 				"channel_options": {"whitelist":false, "channels":[]},
 				"banned_users":[],
 				"color_restrictions":[]
@@ -54,18 +54,18 @@ client.on('message', msg => {
 		}
 
 		// check if the sent message was sent in either a not whitelisted channel or a blacklisted channel
-		if (serverSettings[msg.guild.id].channel_options.channels.includes(msg.channel.id)) { // channel is present in the list of channels for the server
-			if (serverSettings[msg.guild.id].channel_options.whitelist) { // If the server operates on blacklist mode, since the channel is noted, block execution
+		if (globals.serverSettings[msg.guild.id].channel_options.channels.includes(msg.channel.id)) { // channel is present in the list of channels for the server
+			if (globals.serverSettings[msg.guild.id].channel_options.whitelist) { // If the server operates on blacklist mode, since the channel is noted, block execution
 				if (config.debug_mode) {console.log(`Ignored command in channel ${msg.channel.name} on ${msg.guild.name} - channel is blacklisted`);}
 				return;
 			}
-		} else if (serverSettings[msg.guild.id].channel_options.whitelist) { // because the channel is NOT present in the list of channels, whitelist blocks execution
+		} else if (globals.serverSettings[msg.guild.id].channel_options.whitelist) { // because the channel is NOT present in the list of channels, whitelist blocks execution
 			if (config.debug_mode) {console.log(`Ignored command in channel ${msg.channel.name} on ${msg.guild.name} - channel is not whitelisted`);}
 			return;
 		}
 
 		// check if the user was banned from using the color changes on this server
-		if (serverSettings[msg.guild.id].banned_users.includes(msg.member.id)) {
+		if (globals.serverSettings[msg.guild.id].banned_users.includes(msg.member.id)) {
 			if (config.debug_mode) {console.log(`Blocked ${msg.member.tag} on ${msg.guild.name} from accessing commands - user has been banned on this server`);}
 			return;
 		}
@@ -106,8 +106,10 @@ client.on('message', msg => {
 
 
 let presenceInterval;
+let saveSettingsInterval;
 client.on('ready', () => { // This event fires once the client has successfully logged into Discord.
 	console.log(`Connected to Discord as ${client.user.tag}`);
+
 	// Set the bot user's status (the playing status) and changes it on a regular basis ("interval")
 	if (!presenceInterval) { // bit of an afterthought - avoid creating multiple intervals in case the bot accidentally disconnects or something
 		presenceInterval = client.setInterval(() => {
@@ -125,7 +127,10 @@ client.on('ready', () => { // This event fires once the client has successfully 
 			.catch(err => `Failed to set presence status. More details: \n${err}`);
 		}, config.presence_interval);
 	}
-	
+
+	if (!saveSettingsInterval) {
+		saveSettingsInterval = client.setInterval(saveSettings, config.save_interval);
+	}
 });
 
 client.on('reconnecting', ()=>{	// This should fire when something goes wrong inbetween connections.

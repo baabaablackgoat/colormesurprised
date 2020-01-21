@@ -29,6 +29,9 @@ module.exports = {
 	// The time interval in which the bot changes his presence message in milliseconds. Don't make this less than 30000 or you WILL be ratelimited all the time, trust me.
 	presence_interval: 60000,
 
+	// The frequency of saving server settings in it's json file in milliseconds. You can set this lower than 60000, but realistically, you only need to save once every few minutes.
+	save_interval: 60000,
+
 	// Determines whether the bot should complain if the prefix was triggered, but no valid command or color was found. Useful if your prefix is ambiguous.
 	reply_on_invalid: true,
 
