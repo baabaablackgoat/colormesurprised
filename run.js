@@ -41,6 +41,11 @@ client.on('message', msg => {
 		return;
 	}
 
+	// for cwem: attempting to load pixiv artwork links
+	if (msg.content.startsWith('https://www.pixiv.net/')) {
+		// https://www.sitepoint.com/web-scraping-in-node-js/ do something with this
+	}
+
 	// Check if the sent message has the configured prefix. If not, skip. 
 	if (msg.content.startsWith(config.prefix)) {
 
