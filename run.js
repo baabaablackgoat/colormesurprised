@@ -2,10 +2,26 @@ const Discord = require('discord.js');
 const fs = require('fs');
 const client = new Discord.Client();
 const token = fs.readFileSync('token.txt', 'utf8').trim();
+const serverSettingsPath = './data/serverSettings.json';
 let config = require('./config.js');
 const getColor = require('./func/getColor.js');
 const commands = require('./func/commands.js');
 const changeMemberColor = require('./func/changeMemberColor.js');
+let serverSettings;
+
+if (fs.existsSync(serverSettingsPath)) {
+	serverSettings = JSON.parse(fs.readFileSync(serverSettingsPath));
+} else {
+	serverSettings = {};
+	fs.writeFileSync(serverSettingsPath, '{}');
+}
+
+function saveServerSettings() {
+	fs.writeFile(serverSettingsPath, JSON.stringify(serverSettings), (err)=>{
+		if (err) {console.log('Failed to save serverSettings:\n'+err);}
+		else if (config.debug_mode){console.log('serverSettings have been saved.');}
+	});
+}
 
 // Message handler
 client.on('message', msg => {
@@ -27,6 +43,32 @@ client.on('message', msg => {
 
 	// Check if the sent message has the configured prefix. If not, skip. 
 	if (msg.content.startsWith(config.prefix)) {
+
+		if (msg.guild.id in serverSettings == false) { // the targeted server isn't represented in the settings yet, create and save
+			serverSettings[msg.guild.id] = {
+				"channel_options": {"whitelist":false, "channels":[]},
+				"banned_users":[],
+				"color_restrictions":[]
+			};
+			saveServerSettings();
+		}
+
+		// check if the sent message was sent in either a not whitelisted channel or a blacklisted channel
+		if (serverSettings[msg.guild.id].channel_options.channels.includes(msg.channel.id)) { // channel is present in the list of channels for the server
+			if (serverSettings[msg.guild.id].channel_options.whitelist) { // If the server operates on blacklist mode, since the channel is noted, block execution
+				if (config.debug_mode) {console.log(`Ignored command in channel ${msg.channel.name} on ${msg.guild.name} - channel is blacklisted`);}
+				return;
+			}
+		} else if (serverSettings[msg.guild.id].channel_options.whitelist) { // because the channel is NOT present in the list of channels, whitelist blocks execution
+			if (config.debug_mode) {console.log(`Ignored command in channel ${msg.channel.name} on ${msg.guild.name} - channel is not whitelisted`);}
+			return;
+		}
+
+		// check if the user was banned from using the color changes on this server
+		if (serverSettings[msg.guild.id].banned_users.includes(msg.member.id)) {
+			if (config.debug_mode) {console.log(`Blocked ${msg.member.tag} on ${msg.guild.name} from accessing commands - user has been banned on this server`);}
+			return;
+		}
 
 		// Check if the user's message contains a valid color (in hexadecimal format). If not, alert and skip.
 		let msgContTrimmed = msg.content.replace(config.prefix, '').trim();
