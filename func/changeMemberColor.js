@@ -66,6 +66,18 @@ module.exports = function(msg, color) {
 		return;
 	}
 
+	if (color == '#000000') { // Apparently, pitch black is the way how Discord sets the default color. This color is globally blacklisted now.
+		msg.reply(config.replies.pitch_black)
+			.then(reply => {
+				if (config.debug_mode) {
+					console.log(`Notified ${msg.author.tag} in ${msg.guild.name} about the inability to set color to #000000`);
+				}
+			}).catch(err => {
+				console.log(`Failed to notify ${msg.author.tag} in ${msg.guild.name} about the inability to set color to #000000. Error details: \n${err}`);
+			});
+		return;
+	}
+
 	// This is the part where we actually change the color of the role!
 	msg.member.roles.get(foundRole.id).setColor(color)
 		.then(role => {

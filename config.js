@@ -48,6 +48,7 @@ module.exports = {
 		change_successful: 'I have changed the color of role "$roleName" to $requestedColor! *hugs*',
 		echo_color: 'you currently have the color $roleColor on your role $roleName! *huggles*',
 		echo_color_failed: 'you don\'t seem to have any role that gives you a color... ;w;',
+		pitch_black: 'changing your color to pitch black is disabled because Discord sees the color #000000 as the default color - this would cause lots of problems!' 
 	},
 
 	// Roles that have any of these permissions are banned from being changed by this bot to avoid changing administrative colors.
