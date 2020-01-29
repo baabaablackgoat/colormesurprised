@@ -148,5 +148,14 @@ module.exports = {
         "white": "#ffffff",
         "whitesmoke": "#f5f5f5",
         "yellow": "#ffff00",
-        "yellowgreen": "#9acd32"
+        "yellowgreen": "#9acd32",
+
+        // the following colors are memes. you have been warned.
+        "gay": "#ff1493",
+        "trans": "#47a9fa",
+        "dumbass": "#4a412a",
+        "ugly": "#4a412a",
+        "straight": "#aeaeae",
+        "boring": "#aeaeae",
+
 };
