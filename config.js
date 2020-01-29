@@ -6,7 +6,7 @@ module.exports = {
 	debug_mode: true,
 
 	// Set the prefix(es) the bot listens to. Messages that don't have this prefix are skipped entirely.
-	prefix: 'color me ',
+	prefix: ['color me ', 'colour me '],
 
 	// The keywords following the prefixes that trigger special commands. Make sure these aren't actual colors, or the color dictionary may make certain commands uncallable.
 	commands: {

@@ -41,9 +41,9 @@ client.on('message', msg => {
 		return;
 	}
 
+	let msgNoPrefix = checkForPrefixAndTrim(msg.content);
 	// Check if the sent message has the configured prefix. If not, skip. 
-	if (msg.content.startsWith(config.prefix)) {
-
+	if (msgNoPrefix) {
 		if (msg.guild.id in globals.serverSettings == false) { // the targeted server isn't represented in the settings yet, create and save
 			globals.serverSettings[msg.guild.id] = {
 				"channel_options": {"whitelist":false, "channels":[]},
@@ -71,16 +71,15 @@ client.on('message', msg => {
 		}
 
 		// Check if the user's message contains a valid color (in hexadecimal format). If not, alert and skip.
-		let msgContTrimmed = msg.content.replace(config.prefix, '').trim();
-		let requestedColor = getColor(msgContTrimmed);
+		let requestedColor = getColor(msgNoPrefix);
 		if (requestedColor == false){
 			// If match fails, check if a command was supposed to be invoked instead
-			let requestedCommand = Object.keys(config.commands).filter((key)=>{return config.commands[key] == msgContTrimmed.toLowerCase();});
+			let requestedCommand = Object.keys(config.commands).filter((key)=>{return config.commands[key] == msgNoPrefix.toLowerCase();});
 			if (requestedCommand.length == 1) { // Found one command and one command only
 				commands[requestedCommand[0]](msg);
 				return;
 			} else if (requestedCommand.length > 1) {
-				console.log(`User requested to run command ${msgContTrimmed} but multiple commands matched the filter. Double check your config.js`);
+				console.log(`User requested to run command ${msgNoPrefix} but multiple commands matched the filter. Double check your config.js`);
 			}
 
 
@@ -103,6 +102,14 @@ client.on('message', msg => {
 
 	}
 });
+
+
+function checkForPrefixAndTrim(msgstring) {
+	for (var i = 0; i < config.prefix.length; i++) {
+		if (msgstring.startsWith(config.prefix[i])) return msgstring.replace(config.prefix[i],'').trim();
+	}
+	return false;
+}
 
 
 let presenceInterval;
