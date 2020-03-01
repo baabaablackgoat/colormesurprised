@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
-const config = require('./../config.js');
+const config = require('../config.js');
 const changeMemberColor = require('./changeMemberColor.js');
-const colorList = require('./../data/colorList.js');
+const colorList = require('../data/colorList.js');
 module.exports.help = help;
 module.exports.echo_color = echo_color;
 module.exports.random_color = random_color;
@@ -12,7 +12,7 @@ module.exports.support = support;
 const helpEmbed = new Discord.RichEmbed({
 	author: {name: 'Color me surprised', icon_url: 'https://i.imgur.com/40ynGjv.png', url: 'https://baabaablackgoat.com'},
 	color: 0xf7069b,
-	description: `Hi! I'm a small discord bot that allows you to change your role color! Just call me with \`${config.prefix}\your_color\` and I'll be there to assist you~\nI support hexadecimal values (like \`#fff\` or \`#123aac\`), rgb values (like \`(255,125,0)\`), and css color codes!`,
+	description: `Hi! I'm a small discord bot that allows you to change your role color! Just call me with \`${config.color_prefix[0]}\your_color\` and I'll be there to assist you~\nI support hexadecimal values (like \`#fff\` or \`#123aac\`), rgb values (like \`(255,125,0)\`), and css color codes!`,
 	footer: {
 		text: 'Made with ♡ by baa baa black goat',
 		icon_url: 'https://i.imgur.com/EzUYnwC.png'
