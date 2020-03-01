@@ -36,7 +36,7 @@ module.exports = function updateMusicPlayback(globals, server_id) {
 		globals.serverMusic[server_id].queue[queue_pos].voiceChannel.join()
 			.then(connection => {
 				globals.serverMusic[server_id].voiceConnection = connection;
-				globals.serverMusic[server_id].dispatcher = connection.playStream(ytdl(globals.serverMusic[server_id].queue[queue_pos].url, {filter:"audioonly", quality: "highestaudio", highWaterMark: 1<<25}), {highWaterMark: 1, passes: 3});
+				globals.serverMusic[server_id].dispatcher = connection.playStream(ytdl(globals.serverMusic[server_id].queue[queue_pos].url, {filter:"audioonly", quality: "highestaudio", highWaterMark: 1<<25}), {highWaterMark: 1, passes: 3, bitrate: 192000});
 				globals.serverMusic[server_id].queue[queue_pos].textChannel.send(config.replies.now_playing.replace('$title', globals.serverMusic[server_id].queue[queue_pos].name).replace("$voiceChannel", globals.serverMusic[server_id].queue[queue_pos].voiceChannel.name));
 				//console.log(globals.serverMusic[server_id].dispatcher);
 				globals.serverMusic[server_id].dispatcher.stream.on("end", () => {
@@ -49,6 +49,7 @@ module.exports = function updateMusicPlayback(globals, server_id) {
 				});
 				/*
 				globals.serverMusic[server_id].dispatcher.on("end", (reason)=>{ // Stream has ended.
+					globals.serverMusic[server_id].queue_pos++;
 					if (config.debug_mode) {console.log(`Dispatcher has ended, ${reason}`);}
 					updateMusicPlayback(globals, server_id); 
 				});*/
