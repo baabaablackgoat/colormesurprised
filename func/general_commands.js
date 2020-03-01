@@ -9,6 +9,8 @@ module.exports.skip = skip;
 module.exports.remove = remove;
 module.exports.queue = queue;
 module.exports.search = search;
+module.exports.np = np;
+module.exports.help = help;
 
 function createServerMusicObject(globals, id) {
 	if (!(id in globals.serverMusic)) {
@@ -161,6 +163,45 @@ function queue(msg, params, globals) {
 	if (remainingSongs > 0) to_send += `...and ${remainingSongs} more`;
 	msg.channel.send("```nimrod\n"+to_send+"```");
 }
+
+function np(msg, params, globals) {
+	if (!globals.serverMusic[msg.guild.id] || globals.serverMusic[msg.guild.id].queue.length == 0) {
+		msg.channel.send(config.replies.queue_is_empty);
+		return;
+	}
+	let targeted_queue_entry = globals.serverMusic[msg.guild.id].queue[globals.serverMusic[msg.guild.id].queue_pos];
+	msg.channel.send(new Discord.RichEmbed({
+		author: {name: `Queued by ${targeted_queue_entry.user.username}`, icon_url: targeted_queue_entry.user.avatarURL},
+		color: 0xf7069b,
+		description: targeted_queue_entry.name,
+		url: targeted_queue_entry.url,
+		footer: {
+			text: 'Made with ♡ by baa baa black goat',
+			icon_url: 'https://i.imgur.com/EzUYnwC.png'
+		}
+	}));
+}
+
+function help(msg, params, globals) {
+	msg.channel.send(new Discord.RichEmbed({
+		color: 0xf7069b,
+		title: "Music help",
+		fields: [
+			{name: "help", value: "Shows this help text!"},
+			{name: "np", value: "Shows what's playing"},
+			{name: "play", value: "Adds a song to the queue"},
+			{name: "skip", value: "Votes to skip or autoskips if you queued the song"},
+			{name: "queue", value: "Shows (part of) the current queue"},
+			{name: "remove", value: "Removes an entry at the numbered position from the queue if you queued the song"},
+			{name: "search", value: "Not yet done - youtube returns 403's atm"}
+		],
+		footer: {
+			text: 'Made with ♡ by baa baa black goat',
+			icon_url: 'https://i.imgur.com/EzUYnwC.png'
+		}
+	}));
+}
+
 function search(msg, params, globals) {
 	msg.channel.send("Sorry, search doesn't work yet cause of youtube-search being borked xwx");
 }
