@@ -28,18 +28,14 @@ function createServerMusicObject(globals, id) {
 }
 
 class MusicQueueEntry {
-	constructor(url, name, msg){
+	constructor(url, name, duration, msg){
 		this.url = url;
 		this.name = name;
+		this.length = `${Math.floor(duration / 60)}:${duration % 60}`;
 		this.user = msg.author;
 		this.textChannel = msg.channel;
 		this.voiceChannel = msg.member.voice.channel;
 	}
-}
-
-
-function getURL(input, api_key){ // This should be expanded to autosearch for also just text
-	if (ytdl.validateURL(input)) return input;
 }
 
 function addToQueue(url, msg, globals) {
@@ -51,7 +47,7 @@ function addToQueue(url, msg, globals) {
 				.then(reply => {if (config.debug_mode) console.log("Notified member of failed YTDL request");})
 				.catch(err => console.log(`Failed to notify member of YTDL error, defails: ${err}`));
 		} else {
-			globals.serverMusic[msg.guild.id].queue.push(new MusicQueueEntry(info.video_url, info.title, msg));
+			globals.serverMusic[msg.guild.id].queue.push(new MusicQueueEntry(info.video_url, info.title, parseInt(info.length_seconds), msg));
 			if (globals.serverMusic[msg.guild.id].queue.length <= 1) {
 				updateMusicPlayback(globals, msg.guild.id);
 			}
@@ -159,7 +155,7 @@ function queue(msg, params, globals) {
 			to_send += config.replies.queue_end;
 			break;
 		}
-		to_send += `${i == queue_pos ? "🎶" : i}) ${globals.serverMusic[msg.guild.id].queue[i].name} ** queued by ${globals.serverMusic[msg.guild.id].queue[i].user.username}\n`;
+		to_send += `${i == queue_pos ? "🎶" : i}) ${globals.serverMusic[msg.guild.id].queue[i].name} | (${globals.serverMusic[msg.guild.id].queue[i].length}) | Q'd by ${globals.serverMusic[msg.guild.id].queue[i].user.username}\n`;
 	}
 	let remainingSongs = globals.serverMusic[msg.guild.id].queue.length - 1 - (queue_pos + shownSongAmt.after);
 	if (remainingSongs > 0) to_send += `...and ${remainingSongs} more`;
@@ -175,12 +171,11 @@ function np(msg, params, globals) {
 	msg.channel.send(new Discord.MessageEmbed({
 		author: {name: `Queued by ${targeted_queue_entry.user.username}`, icon_url: targeted_queue_entry.user.avatarURL},
 		color: 0xf7069b,
-		description: targeted_queue_entry.name,
-		url: targeted_queue_entry.url,
-		footer: {
-			text: 'Made with ♡ by baa baa black goat',
-			icon_url: 'https://i.imgur.com/EzUYnwC.png'
-		}
+		title: targeted_queue_entry.name,
+		fields: [
+			{name: "URL", value: targeted_queue_entry.url, inline: true},
+			{name: "Length", value: targeted_queue_entry.length}
+		]
 	}));
 }
 
