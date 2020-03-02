@@ -1,7 +1,6 @@
 const Discord = require('discord.js');
 const config = require('../config.js');
 const ytdl = require('ytdl-core');
-const youtube_search = require('youtube-search');
 const updateMusicPlayback = require('./updateMusicPlayback.js');
 
 module.exports.play = play;
@@ -11,6 +10,7 @@ module.exports.queue = queue;
 module.exports.search = search;
 module.exports.np = np;
 module.exports.help = help;
+module.exports.disconnect = disconnect;
 
 function createServerMusicObject(globals, id) {
 	if (!(id in globals.serverMusic)) {
@@ -30,7 +30,7 @@ class MusicQueueEntry {
 		this.name = name;
 		this.user = msg.author;
 		this.textChannel = msg.channel;
-		this.voiceChannel = msg.member.voiceChannel;
+		this.voiceChannel = msg.member.voice.channel;
 	}
 }
 
@@ -38,6 +38,7 @@ class MusicQueueEntry {
 function getURL(input, api_key){ // This should be expanded to autosearch for also just text
 	if (ytdl.validateURL(input)) return input;
 
+	/* Deprecated. Will use request instead.
 	return youtube_search(input, {maxResults: 1, key: api_key}, (err, results) => {
 		if (err) {
 			if (config.debug_mode) console.log("Youtube Search Lookup failed: " + err);
@@ -54,6 +55,7 @@ function getURL(input, api_key){ // This should be expanded to autosearch for al
 			return false;
 		}
 	});
+	*/
 }
 
 function addToQueue(url, msg, globals) {
@@ -77,15 +79,15 @@ function addToQueue(url, msg, globals) {
 }
 
 function play(msg, params, globals) {
-	if (!msg.member.voiceChannel) { // User needs to be in a voice channel to play music
+	if (!msg.member.voice.channel) { // User needs to be in a voice channel to play music
 		msg.channel.send(config.replies.not_in_voice)
 			.then(reply => {if (config.debug_mode) console.log("User attempted to play music, but wasn't connected to voice");})
 			.catch(err => console.log(`Failed to notify member that he's not connected to voice, details: ${err}`));
 		return;
 	}
-	let requestedURL = getURL(params[1], globals.google_api_key);
+	let requestedURL = getURL(params[1].replace(/^<|>$/g,""), globals.google_api_key);
 	if (requestedURL){ // The passed parameters are valid. Let's rock
-		addToQueue(params[1], msg, globals); // Add to queue
+		addToQueue(requestedURL, msg, globals); // Add to queue
 	} else {
 		msg.channel.send(config.replies.malformed_url)
 			.then(reply => {if (config.debug_mode) console.log(`User passed invalid URL ${params[1]}`);})
@@ -99,13 +101,15 @@ function skip(msg, params, globals) {
 		return;
 	}
 	let current_track = globals.serverMusic[msg.guild.id].queue[globals.serverMusic[msg.guild.id].queue_pos];
-	if (msg.member.voiceChannel != globals.serverMusic[msg.guild.id].voiceConnection.channel){
+	if (msg.member.voice.channel != globals.serverMusic[msg.guild.id].voiceConnection.channel){
 		msg.channel.send(config.replies.skip_failed_not_in_channel);
 		return;
 	}
-	if (current_track.user == msg.author || msg.member.hasPermission("ADMINISTRATOR")) {
+	if (current_track.user == msg.author || msg.member.permissions.has("ADMINISTRATOR")) {
 		msg.channel.send(config.replies.song_skipped);
-		globals.serverMusic[msg.guild.id].dispatcher.end("Song forceskipped");
+		globals.serverMusic[msg.guild.id].queue_pos++;
+		updateMusicPlayback(globals, msg.guild.id);
+		//globals.serverMusic[msg.guild.id].dispatcher.destroy("Song forceskipped");
 	} else {
 		if (!(msg.author.id in globals.serverMusic[msg.guild.id].skip_votes)) {
 			globals.serverMusic[msg.guild.id].skip_votes.push(msg.author.id);
@@ -116,7 +120,9 @@ function skip(msg, params, globals) {
 		msg.channel.send(config.replies.skip_vote_progress.replace("$progress", `${skipVoteAmt}/${requiredToSkip}`));
 		if (skipVoteAmt >= requiredToSkip) {
 			msg.channel.send(config.replies.song_voteskipped);
-			globals.serverMusic[msg.guild.id].dispatcher.end("Song voteskipped");
+			globals.serverMusic[msg.guild.id].queue_pos++;
+			updateMusicPlayback(globals, msg.guild.id);
+			//globals.serverMusic[msg.guild.id].dispatcher.destroy("Song voteskipped");
 		}
 	}
 }
@@ -135,7 +141,7 @@ function remove(msg, params, globals) {
 		msg.channel.send(config.replies.remove_queuepos_use_skip_instead);
 		return;
 	}
-	if (globals.serverMusic[msg.guild.id].queue[entryNum].user != msg.author && !msg.member.hasPermission("ADMINISTRATOR")) {
+	if (globals.serverMusic[msg.guild.id].queue[entryNum].user != msg.author && !msg.member.permissions.has("ADMINISTRATOR")) {
 		msg.channel.send(config.replies.remove_no_permission);
 		return;
 	}
@@ -170,7 +176,7 @@ function np(msg, params, globals) {
 		return;
 	}
 	let targeted_queue_entry = globals.serverMusic[msg.guild.id].queue[globals.serverMusic[msg.guild.id].queue_pos];
-	msg.channel.send(new Discord.RichEmbed({
+	msg.channel.send(new Discord.MessageEmbed({
 		author: {name: `Queued by ${targeted_queue_entry.user.username}`, icon_url: targeted_queue_entry.user.avatarURL},
 		color: 0xf7069b,
 		description: targeted_queue_entry.name,
@@ -183,7 +189,7 @@ function np(msg, params, globals) {
 }
 
 function help(msg, params, globals) {
-	msg.channel.send(new Discord.RichEmbed({
+	msg.channel.send(new Discord.MessageEmbed({
 		color: 0xf7069b,
 		title: "Music help",
 		fields: [
@@ -204,5 +210,9 @@ function help(msg, params, globals) {
 
 function search(msg, params, globals) {
 	msg.channel.send("Sorry, search doesn't work yet cause of youtube-search being borked xwx");
+}
+
+function disconnect(msg, params, globals){
+	msg.channel.send("Coming soon! ;w;");
 }
 

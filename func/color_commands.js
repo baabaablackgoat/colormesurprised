@@ -9,7 +9,7 @@ module.exports.admin_ban_user = admin_ban_user;
 module.exports.admin_unban_user = admin_unban_user;
 module.exports.support = support;
 
-const helpEmbed = new Discord.RichEmbed({
+const helpEmbed = new Discord.MessageEmbed({
 	author: {name: 'Color me surprised', icon_url: 'https://i.imgur.com/40ynGjv.png', url: 'https://baabaablackgoat.com'},
 	color: 0xf7069b,
 	description: `Hi! I'm a small discord bot that allows you to change your role color! Just call me with \`${config.color_prefix[0]}\your_color\` and I'll be there to assist you~\nI support hexadecimal values (like \`#fff\` or \`#123aac\`), rgb values (like \`(255,125,0)\`), and css color codes!`,

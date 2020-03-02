@@ -30,6 +30,7 @@ module.exports = {
 		help: 'help',
 		np: 'np',
 		search: 'search',
+		disconnect: 'disconnect',
 	},
 
 	// Sets the ratio of how many people in the vc need to vote for a skip to skip the song. Will always be overridden by the person who queued the song or admins.

@@ -18,11 +18,11 @@ module.exports = function(msg, color) {
 
 	// Check if the user who sent the message has a role that defines their color already.
 	let foundRole;
-	if (msg.member.colorRole) { // User has a role that defines their color. Check if it has blacklisted permissions.
-		foundRole = msg.member.colorRole;
+	if (msg.member.roles.color) { // User has a role that defines their color. Check if it has blacklisted permissions.
+		foundRole = msg.member.roles.color;
 		let blocked_for_permission = false;
 		config.permission_blacklist.forEach(permission => {
-			if (!blocked_for_permission && foundRole.hasPermission(permission)) { // that first check exists to prevent overworking the bot ;w;
+			if (!blocked_for_permission && foundRole.permissions.has(permission)) { // that first check exists to prevent overworking the bot ;w;
 				blocked_for_permission = true;
 			}
 		});
@@ -79,7 +79,7 @@ module.exports = function(msg, color) {
 	}
 
 	// This is the part where we actually change the color of the role!
-	msg.member.roles.get(foundRole.id).setColor(color)
+	msg.member.roles.cache.get(foundRole.id).setColor(color)
 		.then(role => {
 			let to_send = config.replies.change_successful;
 			to_send = to_send.replace('$roleName', role.name);
