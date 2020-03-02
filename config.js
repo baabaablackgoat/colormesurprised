@@ -29,7 +29,6 @@ module.exports = {
 		skip: 'skip',
 		help: 'help',
 		np: 'np',
-		search: 'search',
 		disconnect: 'disconnect',
 		loop: 'loop',
 	},
@@ -72,6 +71,7 @@ module.exports = {
 
 		// music related replies
 		not_in_voice: 'You\'re not connected to a voice channel! ;w;',
+		nothing_to_play: 'What am I supposed to play..? ; w;',
 		malformed_url: 'Sorry, I couldn\'t understand the link you sent me...',
 		ytdl_error: 'Sorry, something went wrong... Maybe try again later? ; w;',
 		added_to_queue: '📝 Added \"$title\" to the queue!',

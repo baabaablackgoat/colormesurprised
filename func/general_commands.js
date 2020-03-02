@@ -8,7 +8,6 @@ module.exports.play = play;
 module.exports.skip = skip;
 module.exports.remove = remove;
 module.exports.queue = queue;
-module.exports.search = search;
 module.exports.np = np;
 module.exports.help = help;
 module.exports.disconnect = disconnect;
@@ -27,11 +26,20 @@ function createServerMusicObject(globals, id) {
 	}
 }
 
+function secondsToString(time) {
+	let minutes = Math.floor(time/60);
+	let secs = time % 60;
+	return `${minutes}:${secs.toString().length == 1 ? "0" : ""}${secs}`;
+}
+
 class MusicQueueEntry {
 	constructor(url, name, duration, msg){
 		this.url = url;
 		this.name = name;
-		this.length = `${Math.floor(duration / 60)}:${duration % 60}`;
+		this.duration = {
+			total_seconds: duration,
+			string: secondsToString(duration)
+		};
 		this.user = msg.author;
 		this.textChannel = msg.channel;
 		this.voiceChannel = msg.member.voice.channel;
@@ -63,6 +71,10 @@ function play(msg, params, globals) {
 		msg.channel.send(config.replies.not_in_voice)
 			.then(reply => {if (config.debug_mode) console.log("User attempted to play music, but wasn't connected to voice");})
 			.catch(err => console.log(`Failed to notify member that he's not connected to voice, details: ${err}`));
+		return;
+	}
+	if (!params[1]){
+		msg.channel.send(config.replies.nothing_to_play);
 		return;
 	}
 	let potentialURL = params[1].replace(/^<|>$/g,"");
@@ -147,19 +159,23 @@ function queue(msg, params, globals) {
 		return;
 	}
 	let queue_pos = globals.serverMusic[msg.guild.id].queue_pos;
-	let to_send = "";
 	let shownSongAmt = { before: 2, after: 5};
+	let embedToSend = new Discord.MessageEmbed({
+		title: `Currently handling ${globals.serverMusic[msg.guild.id].queue.length} song${globals.serverMusic[msg.guild.id].queue.length == 1 ? "":"s"}`,
+		color: 0xf7069b,
+		footer: {text: config.replies.queue_end},
+	});
 	for (let i = queue_pos - shownSongAmt.before; i <= queue_pos + shownSongAmt.after; i++) {
 		if (i < 0) continue;
-		if (i >= globals.serverMusic[msg.guild.id].queue.length) {
-			to_send += config.replies.queue_end;
-			break;
-		}
-		to_send += `${i == queue_pos ? "🎶" : i}) ${globals.serverMusic[msg.guild.id].queue[i].name} | (${globals.serverMusic[msg.guild.id].queue[i].length}) | Q'd by ${globals.serverMusic[msg.guild.id].queue[i].user.username}\n`;
+		if (i >= globals.serverMusic[msg.guild.id].queue.length) break;
+		embedToSend.addField(`${i == queue_pos ? "**Now playing** 🎶" : "#"+i}`,
+			`${i == queue_pos ? "**" : i}${globals.serverMusic[msg.guild.id].queue[i].name}${i == queue_pos ? "**" : i} | (${globals.serverMusic[msg.guild.id].queue[i].duration.string}) | ${globals.serverMusic[msg.guild.id].queue[i].user}`);
 	}
+	
 	let remainingSongs = globals.serverMusic[msg.guild.id].queue.length - 1 - (queue_pos + shownSongAmt.after);
-	if (remainingSongs > 0) to_send += `...and ${remainingSongs} more`;
-	msg.channel.send("```nimrod\n"+to_send+"```");
+	if (remainingSongs > 0) embedToSend.setFooter(`...and ${remainingSongs} more`);
+
+	msg.channel.send(embedToSend);
 }
 
 function np(msg, params, globals) {
@@ -168,13 +184,17 @@ function np(msg, params, globals) {
 		return;
 	}
 	let targeted_queue_entry = globals.serverMusic[msg.guild.id].queue[globals.serverMusic[msg.guild.id].queue_pos];
+	let streamedTime = Math.floor(globals.serverMusic[msg.guild.id].dispatcher.streamTime/1000);
+	let blockAmt = Math.floor((streamedTime / targeted_queue_entry.duration.total_seconds) * 20);
+	if (blockAmt < 0) blockAmt = 0; if (blockAmt > 20) blockAmt = 20; // prevent fuckery
+	let progress_bar = "█".repeat(blockAmt) + "▁".repeat(20-blockAmt);
 	msg.channel.send(new Discord.MessageEmbed({
-		author: {name: `Queued by ${targeted_queue_entry.user.username}`, icon_url: targeted_queue_entry.user.avatarURL},
+		author: {name: `Queued by ${targeted_queue_entry.user.username}`, iconURL: targeted_queue_entry.user.avatarURL},
 		color: 0xf7069b,
 		title: targeted_queue_entry.name,
 		fields: [
 			{name: "URL", value: targeted_queue_entry.url, inline: true},
-			{name: "Length", value: targeted_queue_entry.length}
+			{name: "Duration", value: `[**${secondsToString(streamedTime)}**] ${progress_bar} [**${targeted_queue_entry.duration.string}**]`}
 		]
 	}));
 }
@@ -190,6 +210,7 @@ function help(msg, params, globals) {
 			{name: "skip", value: "Votes to skip or autoskips if you queued the song"},
 			{name: "queue", value: "Shows (part of) the current queue"},
 			{name: "remove", value: "Removes an entry at the numbered position from the queue if you queued the song"},
+			{name: "loop", value: "Toggles between queue loop, single loop, or disables it"}
 		],
 		footer: {
 			text: 'Made with ♡ by baa baa black goat',
@@ -217,10 +238,6 @@ function loop(msg, params, globals) {
 			msg.channel.send(config.replies.loop_disabled);
 			break;
 	}
-}
-
-function search(msg, params, globals) {
-	msg.channel.send("Sorry, search doesn't work yet cause of youtube-search being borked xwx");
 }
 
 function disconnect(msg, params, globals){
