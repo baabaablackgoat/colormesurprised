@@ -1,4 +1,5 @@
 token.txt
-google_token.txt
+google_client_secret.json
 node_modules/
 data/serverSettings.json
+.credentials/

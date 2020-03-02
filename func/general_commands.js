@@ -39,25 +39,6 @@ class MusicQueueEntry {
 
 function getURL(input, api_key){ // This should be expanded to autosearch for also just text
 	if (ytdl.validateURL(input)) return input;
-
-	/* Deprecated. Will use request instead.
-	return youtube_search(input, {maxResults: 1, key: api_key}, (err, results) => {
-		if (err) {
-			if (config.debug_mode) console.log("Youtube Search Lookup failed: " + err);
-			return false;
-		}
-		if (results.length >= 1) {
-			if (ytdl.validateURL(results[0].link)) return results[0].link;
-			else {
-				console.log("youtube-search returned result "+ results[0].link +" that was not understood by ytdl-core.");
-				return false;
-			}
-		} else {
-			if (config.debug_mode) console.log("Youtube Search returned no results. " + results);
-			return false;
-		}
-	});
-	*/
 }
 
 function addToQueue(url, msg, globals) {
@@ -87,13 +68,28 @@ function play(msg, params, globals) {
 			.catch(err => console.log(`Failed to notify member that he's not connected to voice, details: ${err}`));
 		return;
 	}
-	let requestedURL = getURL(params[1].replace(/^<|>$/g,""), globals.google_api_key);
-	if (requestedURL){ // The passed parameters are valid. Let's rock
-		addToQueue(requestedURL, msg, globals); // Add to queue
-	} else {
-		msg.channel.send(config.replies.malformed_url)
-			.then(reply => {if (config.debug_mode) console.log(`User passed invalid URL ${params[1]}`);})
-			.catch(err => console.log(`Failed to notify member of malformed URL, details: ${err}`));
+	let potentialURL = params[1].replace(/^<|>$/g,"");
+	if (ytdl.validateURL(potentialURL)) addToQueue(potentialURL, msg, globals); // Youtube URL was found, go straight to addition
+	else {
+		let searchTerm = params.slice(1).join(" ");
+		msg.channel.send(config.replies.lookup_yt_start.replace('$searchTerm', searchTerm));
+
+		authorize(globals.google_client_secret, msg, globals, (msg, globals, auth)=>{
+			const service = google.youtube('v3');
+			service.search.list({
+				auth: auth,
+				part: 'snippet',
+				maxResults: 1,
+				q: searchTerm
+			}, (err, response) =>{
+				if (err) {
+					msg.channel.send(config.replies.lookup_yt_error);
+					console.log('YouTube lookup encountered an API Error! Details:\n'+ err);
+				} else {
+					addToQueue(`https://youtu.be/${response.data.items[0].id.videoId}`, msg, globals);
+				}
+			});
+		});
 	}
 }
 
@@ -201,7 +197,6 @@ function help(msg, params, globals) {
 			{name: "skip", value: "Votes to skip or autoskips if you queued the song"},
 			{name: "queue", value: "Shows (part of) the current queue"},
 			{name: "remove", value: "Removes an entry at the numbered position from the queue if you queued the song"},
-			{name: "search", value: "Not yet done - youtube returns 403's atm"}
 		],
 		footer: {
 			text: 'Made with ♡ by baa baa black goat',
@@ -239,3 +234,70 @@ function disconnect(msg, params, globals){
 	msg.channel.send("Coming soon! ;w;");
 }
 
+
+// The google auth stuff is down here! Mostly taken from here:
+// https://developers.google.com/youtube/v3/quickstart/nodejs
+
+const fs = require('fs');
+const readline = require('readline');
+const {google} = require('googleapis');
+var OAuth2 = google.auth.OAuth2;
+var SCOPES = ['https://www.googleapis.com/auth/youtube.readonly'];
+var TOKEN_DIR = '.credentials/';
+var TOKEN_PATH = TOKEN_DIR + 'google_token_colormesurprised.json';
+
+
+function authorize(credentials, msg, globals, callback) {
+	var clientSecret = credentials.installed.client_secret;
+	var clientId = credentials.installed.client_id;
+	var redirectUrl = credentials.installed.redirect_uris[0];
+	var oauth2Client = new OAuth2(clientId, clientSecret, redirectUrl);
+
+	// Check if we have previously stored a token.
+	fs.readFile(TOKEN_PATH, function (err, token) {
+		if (err) {
+			getNewToken(oauth2Client, callback);
+		} else {
+			oauth2Client.credentials = JSON.parse(token);
+			callback(msg, globals, oauth2Client);
+		}
+	});
+}
+  
+function getNewToken(oauth2Client, callback) {
+	var authUrl = oauth2Client.generateAuthUrl({
+		access_type: 'offline',
+		scope: SCOPES
+	});
+	console.log('Authorize this app by visiting this url: ', authUrl);
+	var rl = readline.createInterface({
+		input: process.stdin,
+		output: process.stdout
+	});
+	rl.question('Enter the code from that page here: ', function (code) {
+		rl.close();
+		oauth2Client.getToken(code, function (err, token) {
+			if (err) {
+				console.log('Error while trying to retrieve access token', err);
+				return;
+			}
+			oauth2Client.credentials = token;
+			storeToken(token);
+			return callback(oauth2Client);
+		});
+	});
+}
+
+function storeToken(token) {
+	try {
+		fs.mkdirSync(TOKEN_DIR);
+	} catch (err) {
+		if (err.code != 'EEXIST') {
+			throw err;
+		}
+	}
+	fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
+		if (err) throw err;
+		console.log('Token stored to ' + TOKEN_PATH);
+	});
+}

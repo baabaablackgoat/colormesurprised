@@ -13,7 +13,7 @@ const parametrize = require('./func/parametrize.js');
 let globals = {
 	serverSettings: {},
 	serverMusic: {},
-	google_api_key: fs.readFileSync('google_token.txt', 'utf8').trim(),
+	google_client_secret: JSON.parse(fs.readFileSync('google_client_secret.json')), // used in general_commands
 };
 
 if (fs.existsSync(serverSettingsPath)) {

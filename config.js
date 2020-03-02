@@ -72,7 +72,7 @@ module.exports = {
 
 		// music related replies
 		not_in_voice: 'You\'re not connected to a voice channel! ;w;',
-		malformed_url: 'Sorry, I couldn\'t understand the link you sent me... (I\'m working on getting automatic text search to work, but the YouTube API keeps rejecting me with 403 forbidden ;^;)',
+		malformed_url: 'Sorry, I couldn\'t understand the link you sent me...',
 		ytdl_error: 'Sorry, something went wrong... Maybe try again later? ; w;',
 		added_to_queue: '📝 Added \"$title\" to the queue!',
 		now_playing: '💽 Now playing \"$title\" in $voiceChannel',
@@ -90,6 +90,9 @@ module.exports = {
 		loop_enabled_single: '🔂 Looping of single track enabled',
 		loop_enabled_queue: '🔁 Looping queue enabled',
 		loop_disabled: '🛑 Looping disabled',
+		lookup_yt_start: '🔍 Searching for $searchTerm on YouTube...',
+		lookup_yt_error: 'Sorry, something went wrong while talking to YouTube\'s API... ;^;',
+
 	},
 
 	// Roles that have any of these permissions are banned from being changed by this bot to avoid changing administrative colors.
