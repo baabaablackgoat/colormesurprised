@@ -11,6 +11,7 @@ module.exports.search = search;
 module.exports.np = np;
 module.exports.help = help;
 module.exports.disconnect = disconnect;
+module.exports.loop = loop;
 
 function createServerMusicObject(globals, id) {
 	if (!(id in globals.serverMusic)) {
@@ -20,6 +21,7 @@ function createServerMusicObject(globals, id) {
 			queue: [],
 			queue_pos: 0,
 			skip_votes: [],
+			loop: false,
 		};
 	}
 }
@@ -206,6 +208,27 @@ function help(msg, params, globals) {
 			icon_url: 'https://i.imgur.com/EzUYnwC.png'
 		}
 	}));
+}
+
+function loop(msg, params, globals) {
+	if (!globals.serverMusic[msg.guild.id] || globals.serverMusic[msg.guild.id].queue.length == 0) {
+		msg.channel.send(config.replies.queue_is_empty);
+		return;
+	}
+	switch (globals.serverMusic[msg.guild.id].loop) {
+		case false:
+			globals.serverMusic[msg.guild.id].loop = 'queue';
+			msg.channel.send(config.replies.loop_enabled_queue);
+			break;
+		case 'queue':
+			globals.serverMusic[msg.guild.id].loop = 'single';
+			msg.channel.send(config.replies.loop_enabled_single);
+			break;
+		case 'single':
+			globals.serverMusic[msg.guild.id].loop = false;
+			msg.channel.send(config.replies.loop_disabled);
+			break;
+	}
 }
 
 function search(msg, params, globals) {

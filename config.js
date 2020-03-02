@@ -31,11 +31,11 @@ module.exports = {
 		np: 'np',
 		search: 'search',
 		disconnect: 'disconnect',
+		loop: 'loop',
 	},
 
 	// Sets the ratio of how many people in the vc need to vote for a skip to skip the song. Will always be overridden by the person who queued the song or admins.
 	music_skip_ratio: 0.5,
-
 
 	// The status messages the bot shows!
 	activities: [
@@ -87,6 +87,9 @@ module.exports = {
 		remove_queuepos_use_skip_instead: 'You can\'t remove the current playing song. Use skip instead!',
 		remove_no_permission: 'You can\'t remove this entry - only the entree or an admin can remove this entry! ;w;',
 		remove_successful: 'Removed $removed from the queue.',
+		loop_enabled_single: '🔂 Looping of single track enabled',
+		loop_enabled_queue: '🔁 Looping queue enabled',
+		loop_disabled: '🛑 Looping disabled',
 	},
 
 	// Roles that have any of these permissions are banned from being changed by this bot to avoid changing administrative colors.
