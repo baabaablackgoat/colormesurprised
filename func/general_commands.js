@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const config = require('../config.js');
 const ytdl = require('ytdl-core');
+const {google} = require('googleapis');
 const updateMusicPlayback = require('./updateMusicPlayback.js');
 
 module.exports.play = play;
@@ -73,22 +74,19 @@ function play(msg, params, globals) {
 	else {
 		let searchTerm = params.slice(1).join(" ");
 		msg.channel.send(config.replies.lookup_yt_start.replace('$searchTerm', searchTerm));
-
-		authorize(globals.google_client_secret, msg, globals, (msg, globals, auth)=>{
-			const service = google.youtube('v3');
-			service.search.list({
-				auth: auth,
-				part: 'snippet',
-				maxResults: 1,
-				q: searchTerm
-			}, (err, response) =>{
-				if (err) {
-					msg.channel.send(config.replies.lookup_yt_error);
-					console.log('YouTube lookup encountered an API Error! Details:\n'+ err);
-				} else {
-					addToQueue(`https://youtu.be/${response.data.items[0].id.videoId}`, msg, globals);
-				}
-			});
+		const service = google.youtube('v3');
+		service.search.list({
+			auth: globals.googleJWTClient,
+			part: 'snippet',
+			maxResults: 1,
+			q: searchTerm
+		}, (err, response) =>{
+			if (err) {
+				msg.channel.send(config.replies.lookup_yt_error);
+				console.log('YouTube lookup encountered an API Error! Details:\n'+ err);
+			} else {
+				addToQueue(`https://youtu.be/${response.data.items[0].id.videoId}`, msg, globals);
+			}
 		});
 	}
 }
@@ -232,72 +230,4 @@ function search(msg, params, globals) {
 
 function disconnect(msg, params, globals){
 	msg.channel.send("Coming soon! ;w;");
-}
-
-
-// The google auth stuff is down here! Mostly taken from here:
-// https://developers.google.com/youtube/v3/quickstart/nodejs
-
-const fs = require('fs');
-const readline = require('readline');
-const {google} = require('googleapis');
-var OAuth2 = google.auth.OAuth2;
-var SCOPES = ['https://www.googleapis.com/auth/youtube.readonly'];
-var TOKEN_DIR = '.credentials/';
-var TOKEN_PATH = TOKEN_DIR + 'google_token_colormesurprised.json';
-
-
-function authorize(credentials, msg, globals, callback) {
-	var clientSecret = credentials.installed.client_secret;
-	var clientId = credentials.installed.client_id;
-	var redirectUrl = credentials.installed.redirect_uris[0];
-	var oauth2Client = new OAuth2(clientId, clientSecret, redirectUrl);
-
-	// Check if we have previously stored a token.
-	fs.readFile(TOKEN_PATH, function (err, token) {
-		if (err) {
-			getNewToken(oauth2Client, callback);
-		} else {
-			oauth2Client.credentials = JSON.parse(token);
-			callback(msg, globals, oauth2Client);
-		}
-	});
-}
-  
-function getNewToken(oauth2Client, callback) {
-	var authUrl = oauth2Client.generateAuthUrl({
-		access_type: 'offline',
-		scope: SCOPES
-	});
-	console.log('Authorize this app by visiting this url: ', authUrl);
-	var rl = readline.createInterface({
-		input: process.stdin,
-		output: process.stdout
-	});
-	rl.question('Enter the code from that page here: ', function (code) {
-		rl.close();
-		oauth2Client.getToken(code, function (err, token) {
-			if (err) {
-				console.log('Error while trying to retrieve access token', err);
-				return;
-			}
-			oauth2Client.credentials = token;
-			storeToken(token);
-			return callback(oauth2Client);
-		});
-	});
-}
-
-function storeToken(token) {
-	try {
-		fs.mkdirSync(TOKEN_DIR);
-	} catch (err) {
-		if (err.code != 'EEXIST') {
-			throw err;
-		}
-	}
-	fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-		if (err) throw err;
-		console.log('Token stored to ' + TOKEN_PATH);
-	});
 }

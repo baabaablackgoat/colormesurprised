@@ -10,10 +10,29 @@ const color_commands = require('./func/color_commands.js');
 const general_commands = require('./func/general_commands.js');
 const changeMemberColor = require('./func/changeMemberColor.js');
 const parametrize = require('./func/parametrize.js');
+//const google = require('googleapis');
+const {JWT} = require('google-auth-library');
+const google_service_secret = require('./google_service_secret.json');
+let jwtClient = new JWT(
+		google_service_secret.client_email,
+		null,
+		google_service_secret.private_key,
+		['https://www.googleapis.com/auth/youtube.readonly']
+	);
+
+jwtClient.authorize((err, tokens) => {
+	if (err) {
+		console.log(err);
+		return;
+	} else {
+		console.log("Google Service Account successfully authenticated.");
+	}
+});
+
 let globals = {
 	serverSettings: {},
 	serverMusic: {},
-	google_client_secret: JSON.parse(fs.readFileSync('google_client_secret.json')), // used in general_commands
+	googleJWTClient: jwtClient,
 };
 
 if (fs.existsSync(serverSettingsPath)) {
