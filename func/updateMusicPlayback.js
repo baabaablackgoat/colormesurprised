@@ -24,6 +24,7 @@ serverMusic
 // 
 
 module.exports = function updateMusicPlayback(globals, server_id) {
+	globals.serverMusic[server_id].skip_votes = [];
 	queue_pos = globals.serverMusic[server_id].queue_pos;
 	if (globals.serverMusic[server_id].queue_pos >= globals.serverMusic[server_id].queue.length) {
 		globals.serverMusic[server_id].queue = [];
