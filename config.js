@@ -38,15 +38,16 @@ module.exports = {
 
 
 	// The status messages the bot shows!
-	presences: [
+	activities: [
 		{ name: 'with r a i n b o w s', type: 'PLAYING'},
 		{ name: 'with all the heckin colors!', type: 'PLAYING'},
 		{ type: 'PLAYING', name: 'with coloUrs, not colors'},
-		{ name: 'probably another rick roll', type: 'LISTENING'}, 
+		{ name: 'probably another rick roll', type: 'LISTENING'},
+		{ name: 'with discord.js v12.0!', type: 'PLAYING'} 
 	],
 
-	// The time interval in which the bot changes his presence message in milliseconds. Don't make this less than 30000 or you WILL be ratelimited all the time, trust me.
-	presence_interval: 60000,
+	// The time interval in which the bot changes his activity message in milliseconds. Don't make this less than 30000 or you WILL be ratelimited all the time, trust me.
+	activity_interval: 60000,
 
 	// The frequency of saving server settings in it's json file in milliseconds. You can set this lower than 60000, but realistically, you only need to save once every few minutes.
 	save_interval: 60000,
