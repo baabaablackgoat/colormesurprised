@@ -31,7 +31,7 @@ function parametrize(msgstring) {
 		current_param += char;
 	}
 	if (current_param.length > 0) output.push(current_param); // push the last parameter to result
-	if (enabled_quote) return false; // quotes wasn't closed properly - malformed string, return false.
+	//if (enabled_quote) return false; // quotes weren't closed properly - malformed string, return false.
 	return output;
 }
 
