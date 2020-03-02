@@ -138,7 +138,7 @@ function checkForPrefixAndTrim(msgstring, type) {
 function saveServerSettings() {
 	fs.writeFile(serverSettingsPath, JSON.stringify(globals.serverSettings), (err)=>{
 		if (err) {console.log('Failed to save serverSettings:\n'+err);}
-		else if (config.debug_mode){console.log('serverSettings have been saved.');}
+		// else if (config.debug_mode){console.log('serverSettings have been saved.');}
 	});
 }
 
@@ -169,9 +169,10 @@ client.on('ready', () => { // This event fires once the client has successfully 
 			let activity_index = Math.floor(Math.random() * config.activities.length);
 			client.user.setActivity(config.activities[activity_index].name, {type: config.activities[activity_index].type})
 				.then(promise => {
-				if (config.debug_mode) {
+				/*if (config.debug_mode) {
 					console.log('Successfully set activity.');
 				}
+				*/
 			})
 			.catch(err => `Failed to set activity. More details: \n${err}`);
 		}, config.activity_interval);
