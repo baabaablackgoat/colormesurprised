@@ -222,7 +222,7 @@ function remove(msg, params, globals) {
 	msg.channel.send(config.replies.remove_successful.replace("$removed", removedEntry[0].name));
 }
 
-function queue(msg, params, globals) {
+function queue(msg, params, globals, offset = 0) {
 	if (!globals.serverMusic[msg.guild.id] || globals.serverMusic[msg.guild.id].queue.length == 0) {
 		msg.channel.send(config.replies.queue_is_empty);
 		return;
@@ -234,17 +234,28 @@ function queue(msg, params, globals) {
 		color: 0xf7069b,
 		footer: {text: config.replies.queue_end},
 	});
-	for (let i = queue_pos - shownSongAmt.before; i <= queue_pos + shownSongAmt.after; i++) {
+	for (let i = queue_pos + offset - shownSongAmt.before; i <= queue_pos + offset + shownSongAmt.after; i++) {
 		if (i < 0) continue;
 		if (i >= globals.serverMusic[msg.guild.id].queue.length) break;
 		embedToSend.addField(`${i == queue_pos ? "**Now playing** 🎶" : "#"+i}`,
 			`${i == queue_pos ? "**" : ""}${globals.serverMusic[msg.guild.id].queue[i].name}${i == queue_pos ? "**" : ""} | (${globals.serverMusic[msg.guild.id].queue[i].duration.string}) | ${globals.serverMusic[msg.guild.id].queue[i].user}`);
 	}
 	
-	let remainingSongs = globals.serverMusic[msg.guild.id].queue.length - 1 - (queue_pos + shownSongAmt.after);
+	let remainingSongs = globals.serverMusic[msg.guild.id].queue.length - 1 - (queue_pos + offset + shownSongAmt.after);
 	if (remainingSongs > 0) embedToSend.setFooter(`...and ${remainingSongs} more`);
 
-	msg.channel.send(embedToSend);
+	msg.channel.send(embedToSend).then((sentMessage) => {
+		if (remainingSongs > 0) {
+			sentMessage.react('⬇️');
+			let reactionCollector = new Discord.ReactionCollector(sentMessage, (reaction, user) => user.id == msg.author.id && reaction.emoji.name == '⬇️', {time: 10000, limit: 1});
+			reactionCollector.on("collect", (reaction, user) => {
+				//reaction.remove();
+				queue(msg, params, globals, offset+shownSongAmt.after+shownSongAmt.before);
+			});
+
+		}
+		
+	});
 }
 
 function np(msg, params, globals) {
