@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const config = require('../config.js');
 const ytdl = require('ytdl-core');
 const {google} = require('googleapis');
+const youtube = google.youtube('v3');
 const updateMusicPlayback = require('./updateMusicPlayback.js');
 
 module.exports.play = play;
@@ -66,6 +67,61 @@ function addToQueue(url, msg, globals) {
 	});
 }
 
+function getNextPlaylistPage(output, playlistID, msg, globals, pageToken = null) {
+	youtube.playlistItems.list({
+		auth: globals.googleJWTClient,
+		part: 'snippet,status',
+		maxResults: 50,
+		playlistId: playlistID,
+		pageToken: pageToken,
+	}, (err, response) => {
+		if (err || response.status != 200) { // If something went wrong, don't do further requests and queue the existing stuff
+			queuePlaylistEntries(output, msg, globals);
+			return;
+		}
+		output = output.concat(response.data.items); // Add the new items to the output array
+		if (response.data.nextPageToken) {
+			getNextPlaylistPage(output, playlistID, msg, globals, response.data.nextPageToken);
+		} else {
+			queuePlaylistEntries(output, msg, globals);
+		}
+	});
+}
+
+function queuePlaylistEntries(output, msg, globals) {
+	if (output.length == 0) {
+		msg.channel.send(globals.replies.no_youtube_playlist_entries_found);
+		return;
+	}
+	msg.channel.send(config.replies.youtube_playlist_startedQueueing.replace("$amount", output.length));
+	createServerMusicObject(globals, msg.guild.id);
+	let queuedEntries = 0;
+	for (let i = 0; i < output.length; i++) {
+		if (output[i].status.privacyStatus != 'private') { // skip private videos cause I can't play these
+			queuedEntries++;
+			// Push entries first and update the durations slowly afterwards using ytdl.getInfo()
+			let newQueueLength = globals.serverMusic[msg.guild.id].queue.push(new MusicQueueEntry("https://youtu.be/" + output[i].snippet.resourceId.videoId, output[i].snippet.title, 0, msg));
+			fixEntryDuration(globals, msg.guild.id, newQueueLength - 1);
+		} 
+	}
+	output.forEach(entry => {
+		
+	});
+	msg.channel.send(config.replies.youtube_playlist_finished.replace("$amount", queuedEntries));
+	if (!globals.serverMusic[msg.guild.id].dispatcher) updateMusicPlayback(globals, msg.guild.id); // start playback if no playback exists yet
+}
+
+function fixEntryDuration(globals, guild_id, entryPos){
+	ytdl.getInfo(globals.serverMusic[guild_id].queue[entryPos].url, (err, info) => {
+		if (err) {console.log(err); return;}
+		let foundTime = parseInt(info.length_seconds);
+		globals.serverMusic[guild_id].queue[entryPos].duration = {
+			total_seconds: foundTime,
+			string: secondsToString(foundTime)
+		};
+	});
+}
+
 function play(msg, params, globals) {
 	if (!msg.member.voice.channel) { // User needs to be in a voice channel to play music
 		msg.channel.send(config.replies.not_in_voice)
@@ -77,13 +133,23 @@ function play(msg, params, globals) {
 		msg.channel.send(config.replies.nothing_to_play);
 		return;
 	}
+
 	let potentialURL = params[1].replace(/^<|>$/g,"");
+
+	if (potentialURL.startsWith("https://www.youtube.com/playlist?list=")) { // Oooo, a youtube playlist! TIME TO QUEUE ALL OF IT.
+		let playlistID = potentialURL.substring(38);
+		msg.channel.send(config.replies.youtube_playlist_searchStart.replace("$playlistID", playlistID));
+		//const youtube = google.youtube('v3');
+		let playlistItems = []; // create an array of replies so we can store multiple pages
+		getNextPlaylistPage(playlistItems, playlistID, msg, globals);
+		return;
+	}
+
 	if (ytdl.validateURL(potentialURL)) addToQueue(potentialURL, msg, globals); // Youtube URL was found, go straight to addition
 	else {
 		let searchTerm = params.slice(1).join(" ");
 		msg.channel.send(config.replies.lookup_yt_start.replace('$searchTerm', searchTerm));
-		const service = google.youtube('v3');
-		service.search.list({
+		youtube.search.list({
 			auth: globals.googleJWTClient,
 			part: 'snippet',
 			maxResults: 1,
