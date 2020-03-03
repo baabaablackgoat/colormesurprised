@@ -97,16 +97,13 @@ function queuePlaylistEntries(output, msg, globals) {
 	createServerMusicObject(globals, msg.guild.id);
 	let queuedEntries = 0;
 	for (let i = 0; i < output.length; i++) {
-		if (output[i].status.privacyStatus != 'private') { // skip private videos cause I can't play these
+		if (output[i] && output[i].status && output[i].status.privacyStatus != 'private') { // skip private videos cause I can't play these
 			queuedEntries++;
 			// Push entries first and update the durations slowly afterwards using ytdl.getInfo()
 			let newQueueLength = globals.serverMusic[msg.guild.id].queue.push(new MusicQueueEntry("https://youtu.be/" + output[i].snippet.resourceId.videoId, output[i].snippet.title, 0, msg));
 			fixEntryDuration(globals, msg.guild.id, newQueueLength - 1);
 		} 
 	}
-	output.forEach(entry => {
-		
-	});
 	msg.channel.send(config.replies.youtube_playlist_finished.replace("$amount", queuedEntries));
 	if (!globals.serverMusic[msg.guild.id].dispatcher) updateMusicPlayback(globals, msg.guild.id); // start playback if no playback exists yet
 }

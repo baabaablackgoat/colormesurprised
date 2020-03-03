@@ -67,7 +67,8 @@ module.exports = function updateMusicPlayback(globals, server_id) {
 			});
 		})
 		.catch(err => {
-			console.log(`Failed to connect to voice channel. Error: ${err}`);
+			console.log(`Failed to connect to voice channel. Error: ${err}. Attempting to connect to voice...`);
+			updateMusicPlayback(globals, server_id);
 		});
 	
 };
