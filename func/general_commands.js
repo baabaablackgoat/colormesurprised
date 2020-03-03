@@ -235,7 +235,7 @@ function queue(msg, params, globals) {
 		if (i < 0) continue;
 		if (i >= globals.serverMusic[msg.guild.id].queue.length) break;
 		embedToSend.addField(`${i == queue_pos ? "**Now playing** 🎶" : "#"+i}`,
-			`${i == queue_pos ? "**" : i}${globals.serverMusic[msg.guild.id].queue[i].name}${i == queue_pos ? "**" : i} | (${globals.serverMusic[msg.guild.id].queue[i].duration.string}) | ${globals.serverMusic[msg.guild.id].queue[i].user}`);
+			`${i == queue_pos ? "**" : ""}${globals.serverMusic[msg.guild.id].queue[i].name}${i == queue_pos ? "**" : ""} | (${globals.serverMusic[msg.guild.id].queue[i].duration.string}) | ${globals.serverMusic[msg.guild.id].queue[i].user}`);
 	}
 	
 	let remainingSongs = globals.serverMusic[msg.guild.id].queue.length - 1 - (queue_pos + shownSongAmt.after);
