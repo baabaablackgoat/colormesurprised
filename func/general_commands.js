@@ -307,5 +307,22 @@ function loop(msg, params, globals) {
 }
 
 function disconnect(msg, params, globals){
-	msg.channel.send("Coming soon! ;w;");
+	if (globals.serverMusic[msg.guild.id] && globals.serverMusic[msg.guild.id].queue.length > 0) {
+		msg.channel.send(config.replies.disconnect_areyousure.replace("$amount", globals.serverMusic[msg.guild.id].queue.length))
+			.then(sentMessage => {
+				sentMessage.react('🗑️');
+				let collector = new Discord.ReactionCollector(sentMessage, (reaction, user) => reaction.emoji.name == '🗑️' && user.id == msg.author.id, {time: 10000, max: 1});
+				collector.on("end", (collected, reason) => {
+					if (reason == 'time') {
+						msg.channel.send(config.replies.disconnect_timedout);
+					} else if (reason == 'limit') {
+						globals.serverMusic[msg.guild.id].loop = false;
+						globals.serverMusic[msg.guild.id].queue_pos = Infinity;
+						updateMusicPlayback(globals, msg.guild.id);
+						msg.channel.send(config.replies.disconnect_confirm);
+					}
+				});
+			});
+	}
 }
+

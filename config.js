@@ -96,7 +96,10 @@ module.exports = {
 		youtube_playlist_failed: 'Sorry, I couldn\'t look up your playlist...',
 		no_yotube_playlist_entries_found: 'Sorry, but it seems like your playlist is either empty, or something went wrong while I requested the data...',
 		youtube_playlist_startedQueueing: 'Found $amount songs in your playlist. Starting to enqueue... (This might take a while.)',
-		youtube_playlist_finished: 'Finished processing playlist and added $amount songs to the queue!'
+		youtube_playlist_finished: 'Finished processing playlist and added $amount songs to the queue!',
+		disconnect_areyousure: 'Are you sure? This will remove $amount entries from the queue and stop playback immediately!',
+		disconnect_timedout: 'Disconnect/clear request has timed out.',
+		disconnect_confirm: 'See you soon ; w;',
 	},
 
 	// Roles that have any of these permissions are banned from being changed by this bot to avoid changing administrative colors.
