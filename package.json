@@ -8,6 +8,7 @@
     "discord.js": "github:discordjs/discord.js",
     "google-auth-library": "^5.10.1",
     "googleapis": "^47.0.0",
+    "moment": "^2.24.0",
     "node-opus": "^0.3.3",
     "ytdl-core": "^2.0.0"
   },
