@@ -33,6 +33,7 @@ let globals = {
 	serverSettings: {},
 	serverMusic: {},
 	googleJWTClient: jwtClient,
+	botClient: client,
 };
 
 if (fs.existsSync(serverSettingsPath)) {

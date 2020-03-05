@@ -14,6 +14,7 @@ module.exports.np = np;
 module.exports.help = help;
 module.exports.disconnect = disconnect;
 module.exports.loop = loop;
+module.exports.new_nick = new_nick;
 
 function createServerMusicObject(globals, id) {
 	if (!(id in globals.serverMusic)) {
@@ -338,5 +339,11 @@ function disconnect(msg, params, globals){
 				});
 			});
 	}
+}
+
+function new_nick (msg, params, globals) {
+	msg.channel.send(">w>").then(sent_message => {
+		sent_message.member.setNickname(params[1]).catch(err => console.log(err));
+	})
 }
 

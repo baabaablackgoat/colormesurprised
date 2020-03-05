@@ -31,6 +31,7 @@ module.exports = {
 		np: 'np',
 		disconnect: 'disconnect',
 		loop: 'loop',
+		new_nick: 'new_nick',
 	},
 
 	// Sets the ratio of how many people in the vc need to vote for a skip to skip the song. Will always be overridden by the person who queued the song or admins.
@@ -108,5 +109,7 @@ module.exports = {
 		'ADMINISTRATOR',
 		'KICK_MEMBERS',
 		'MANAGE_CHANNELS'
-	]
+	],
+	// Set these to yourself to allow access to the super sekrit commands owo
+	bot_admin_ids: ["178470784984023040"],
 };
