@@ -269,7 +269,7 @@ function np(msg, params, globals) {
 	if (blockAmt < 0) blockAmt = 0; if (blockAmt > 20) blockAmt = 20; // prevent fuckery
 	let progress_bar = "█".repeat(blockAmt) + "▁".repeat(20-blockAmt);
 	msg.channel.send(new Discord.MessageEmbed({
-		author: {name: `Queued by ${targeted_queue_entry.user}`, iconURL: targeted_queue_entry.user.avatarURL},
+		author: {name: `Queued by ${targeted_queue_entry.user.tag}`, iconURL: targeted_queue_entry.user.avatarURL()},
 		color: 0xf7069b,
 		title: targeted_queue_entry.name,
 		fields: [
