@@ -5,6 +5,7 @@ const {google} = require('googleapis');
 const youtube = google.youtube('v3');
 const updateMusicPlayback = require('./updateMusicPlayback.js');
 const moment = require('moment');
+const getRepoInfo = require('git-repo-info');
 
 module.exports.play = play;
 module.exports.skip = skip;
@@ -15,6 +16,7 @@ module.exports.help = help;
 module.exports.disconnect = disconnect;
 module.exports.loop = loop;
 module.exports.new_nick = new_nick;
+module.exports.version = version;
 
 function createServerMusicObject(globals, id) {
 	if (!(id in globals.serverMusic)) {
@@ -359,3 +361,11 @@ function new_nick(msg, params, globals) {
 	});
 }
 
+function version(msg, params, globals) {
+	let gitInfo = getRepoInfo();
+	msg.channel.send(new Discord.MessageEmbed({
+		author: {name: `Color Me Surprised ${gitInfo.lastTag}`, url: "https://github.com/baabaablackgoat/colormesurprised", iconURL: "https://baabaablackgoat.com/heck/color_me_surprised.png"},
+		color: 0xf7069b,
+		description: `Running on commit ${gitInfo.abbreviatedSha} @${gitInfo.committerDate}\n\n\`${gitInfo.commitMessage}\`\n\nhttps://github.com/baabaablackgoat/colormesurprised/commit/${gitInfo.sha}`,
+	}));
+}
