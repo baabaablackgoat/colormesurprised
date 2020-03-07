@@ -4,6 +4,7 @@ const ytdl = require('ytdl-core');
 const {google} = require('googleapis');
 const youtube = google.youtube('v3');
 const updateMusicPlayback = require('./updateMusicPlayback.js');
+const permissionCheck = require('./permissionCheck.js');
 const moment = require('moment');
 const getRepoInfo = require('git-repo-info');
 
@@ -356,6 +357,7 @@ function disconnect(msg, params, globals){
 }
 
 function new_nick(msg, params, globals) {
+	if (!permissionCheck(msg, 'serverManager')) return;
 	msg.channel.send(">w>").then(sent_message => {
 		sent_message.member.setNickname(params[1]).catch(err => console.log(err));
 	});
