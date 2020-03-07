@@ -43,15 +43,11 @@ module.exports = function updateMusicPlayback(globals, server_id) {
 			globals.serverMusic[server_id].voiceConnection = connection;
 			globals.serverMusic[server_id].dispatcher = connection.play(ytdl(globals.serverMusic[server_id].queue[queue_pos].url, {filter:"audioonly", quality: "highestaudio", highWaterMark: 1<<25}), {highWaterMark: 1, passes: 3, bitrate: 256000});
 			globals.serverMusic[server_id].queue[queue_pos].textChannel.send(config.replies.now_playing.replace('$title', globals.serverMusic[server_id].queue[queue_pos].name).replace("$voiceChannel", globals.serverMusic[server_id].queue[queue_pos].voiceChannel.name));
-			//console.log(globals.serverMusic[server_id].dispatcher);
-			/* UNCOMMENT ON WINDOWS  DUNNO WHY IT DOES THIS*/
-			/*
-			globals.serverMusic[server_id].dispatcher.stream.on("end", () => {
-				globals.serverMusic[server_id].queue_pos++;
-				if (config.debug_mode) {console.log("Stream has ended (no more data)");}
-				updateMusicPlayback(globals, server_id);
+			
+			globals.serverMusic[server_id].voiceConnection.on("disconnect", () => {
+				// this fires on forceful channel switching too, right...?	
 			});
-			*/
+
 			globals.serverMusic[server_id].dispatcher.on("error", (err) =>{
 				console.log("error in dispatcher: \n" + err);
 			});

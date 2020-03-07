@@ -101,6 +101,9 @@ module.exports = {
 		disconnect_areyousure: 'Are you sure? This will remove $amount entries from the queue and stop playback immediately!',
 		disconnect_timedout: 'Disconnect/clear request has timed out.',
 		disconnect_confirm: 'See you soon ; w;',
+		disconnect_not_in_channel: 'You\'re not connected to the current voice channel! ; w;',
+		disconnect_too_many_users: 'I won\'t listen to a disconnect while there\'s more than one person listening... vwv',
+		caught_disconnect_with_entries_in_queue: 'Hey, i\'ve been disconnected and I still got work to do! ;w; If you want me to leave, use the disconnect command...',
 	},
 
 	// Roles that have any of these permissions are banned from being changed by this bot to avoid changing administrative colors.

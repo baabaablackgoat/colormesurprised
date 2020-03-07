@@ -323,6 +323,18 @@ function loop(msg, params, globals) {
 
 function disconnect(msg, params, globals){
 	if (globals.serverMusic[msg.guild.id] && globals.serverMusic[msg.guild.id].queue.length > 0) {
+		if (!msg.member.hasPermission('ADMINISTRATOR')) { // Admins can always invoke a disconnect
+			// not connected to voice - not allowed
+			if (msg.member.voice.channel != globals.serverMusic[msg.guild.id].voiceConnection.channel) {
+				msg.channel.send(config.replies.disconnect_not_in_channel);
+				return;
+			}
+			if (globals.serverMusic[msg.guild.id].voiceConnection.channel.members.size > 2) { // member isn't alone with the bot
+				msg.channel.send(config.replies.disconnect_too_many_users);
+				return;
+			}
+		}
+
 		msg.channel.send(config.replies.disconnect_areyousure.replace("$amount", globals.serverMusic[msg.guild.id].queue.length))
 			.then(sentMessage => {
 				sentMessage.react('🗑️');
@@ -341,9 +353,9 @@ function disconnect(msg, params, globals){
 	}
 }
 
-function new_nick (msg, params, globals) {
+function new_nick(msg, params, globals) {
 	msg.channel.send(">w>").then(sent_message => {
 		sent_message.member.setNickname(params[1]).catch(err => console.log(err));
-	})
+	});
 }
 
