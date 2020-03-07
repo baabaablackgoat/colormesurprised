@@ -28,6 +28,7 @@ function createServerMusicObject(globals, id) {
 			queue_pos: 0,
 			skip_votes: [],
 			loop: false,
+			loop_amt: 0,
 		};
 	}
 }
@@ -185,6 +186,7 @@ function skip(msg, params, globals) {
 	if (current_track.user == msg.author || msg.member.permissions.has("ADMINISTRATOR")) {
 		msg.channel.send(config.replies.song_skipped);
 		globals.serverMusic[msg.guild.id].queue_pos++;
+		globals.serverMusic[msg.guild.id].loop_amt = 0;
 		updateMusicPlayback(globals, msg.guild.id);
 		//globals.serverMusic[msg.guild.id].dispatcher.destroy("Song forceskipped");
 	} else {
@@ -198,6 +200,7 @@ function skip(msg, params, globals) {
 		if (skipVoteAmt >= requiredToSkip) {
 			msg.channel.send(config.replies.song_voteskipped);
 			globals.serverMusic[msg.guild.id].queue_pos++;
+			globals.serverMusic[msg.guild.id].loop_amt = 0;
 			updateMusicPlayback(globals, msg.guild.id);
 			//globals.serverMusic[msg.guild.id].dispatcher.destroy("Song voteskipped");
 		}
@@ -272,15 +275,17 @@ function np(msg, params, globals) {
 	let blockAmt = Math.floor((streamedTime / targeted_queue_entry.duration.total_seconds) * 20);
 	if (blockAmt < 0) blockAmt = 0; if (blockAmt > 20) blockAmt = 20; // prevent fuckery
 	let progress_bar = "█".repeat(blockAmt) + "▁".repeat(20-blockAmt);
-	msg.channel.send(new Discord.MessageEmbed({
+	let to_send = new Discord.MessageEmbed({
 		author: {name: `Queued by ${targeted_queue_entry.user.tag}`, iconURL: targeted_queue_entry.user.avatarURL()},
 		color: 0xf7069b,
 		title: targeted_queue_entry.name,
 		fields: [
 			{name: "URL", value: targeted_queue_entry.url, inline: true},
-			{name: "Duration", value: `[**${secondsToString(streamedTime)}**] ${progress_bar} [**${targeted_queue_entry.duration.string}**]`}
+			{name: "Duration", value: `[**${secondsToString(streamedTime)}**] ${progress_bar} [**${targeted_queue_entry.duration.string}**]`},
 		]
-	}));
+	});
+	if (globals.serverMusic[msg.guild.id].loop_amt > 0) to_send.addField('Loops', `Looped ${globals.serverMusic[msg.guild.id].loop_amt + 1} times`);
+	msg.channel.send(to_send);
 }
 
 function help(msg, params, globals) {

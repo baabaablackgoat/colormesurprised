@@ -1,22 +1,11 @@
 const ytdl = require('ytdl-core');
+const Discord = require('discord.js');
 const config = require('./../config.js');
 //const Discord = require('discord.js');
 
 // ----------------------
 // Music handler
 // ----------------------
-
-/*
-serverMusic
-"serverID": {
-	dispatcher: null,
-	voiceConnection: null,
-	queue: [],
-	queue_pos: 0,
-	skip_votes: [],
-	looped: false
-}			
-*/
 // Updates the music playback for that server only.
 // This function should be called when:
 // - The queue was empty before, and a track was added.
@@ -42,7 +31,14 @@ module.exports = function updateMusicPlayback(globals, server_id) {
 		.then(connection => {
 			globals.serverMusic[server_id].voiceConnection = connection;
 			globals.serverMusic[server_id].dispatcher = connection.play(ytdl(globals.serverMusic[server_id].queue[queue_pos].url, {filter:"audioonly", quality: "highestaudio", highWaterMark: 1<<25}), {highWaterMark: 1, passes: 3, bitrate: 256000});
-			globals.serverMusic[server_id].queue[queue_pos].textChannel.send(config.replies.now_playing.replace('$title', globals.serverMusic[server_id].queue[queue_pos].name).replace("$voiceChannel", globals.serverMusic[server_id].queue[queue_pos].voiceChannel.name));
+			if (globals.serverMusic[server_id].loop_amt == 0) { 
+				globals.serverMusic[server_id].queue[queue_pos].textChannel.send(new Discord.MessageEmbed({
+					author: {name: `Queued by ${globals.serverMusic[server_id].queue[queue_pos].user.tag}`, iconURL: globals.serverMusic[server_id].queue[queue_pos].user.avatarURL()},
+					color: 0xf7069b,
+					description: `💽 Now playing ${globals.serverMusic[server_id].queue[queue_pos].name} in ${globals.serverMusic[server_id].queue[queue_pos].voiceChannel.name}`
+				}));
+			}
+			
 			
 			globals.serverMusic[server_id].voiceConnection.on("disconnect", () => {
 				// this fires on forceful channel switching too, right...?	
@@ -51,9 +47,13 @@ module.exports = function updateMusicPlayback(globals, server_id) {
 			globals.serverMusic[server_id].dispatcher.on("error", (err) =>{
 				console.log("error in dispatcher: \n" + err);
 			});
-			/*UNCOMMENT ON LINUX*/
+
 			globals.serverMusic[server_id].dispatcher.on("finish", (reason)=>{ // Stream has ended.
-				if (globals.serverMusic[server_id].loop != 'single') globals.serverMusic[server_id].queue_pos++; // If loop mode is not set to "single" mode, increment queue
+				if (globals.serverMusic[server_id].loop == 'single') globals.serverMusic[server_id].loop_amt += 1;
+				else {
+					globals.serverMusic[server_id].loop_amt = 0;
+					globals.serverMusic[server_id].queue_pos++;
+				}
 				if (config.debug_mode) {console.log(`Dispatcher has ended, ${reason}`);}
 				updateMusicPlayback(globals, server_id); 
 			});
