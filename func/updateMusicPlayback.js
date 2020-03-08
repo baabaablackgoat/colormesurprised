@@ -70,7 +70,6 @@ function updateMusicPlayback(globals, server_id) {
 					}
 					*/
 			}
-
 			createDispatcherListeners(globals, server_id);
 			if (globals.serverMusic[server_id].loop_amt == 0) { 
 				globals.serverMusic[server_id].queue[queue_pos].textChannel.send(new Discord.MessageEmbed({
