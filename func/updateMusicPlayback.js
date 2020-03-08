@@ -35,7 +35,7 @@ module.exports = function updateMusicPlayback(globals, server_id) {
 					globals.serverMusic[server_id].dispatcher = connection.play(ytdl(globals.serverMusic[server_id].queue[queue_pos].url, {filter:"audioonly", quality: "highestaudio", highWaterMark: 1<<25}), {highWaterMark: 1, passes: 3, bitrate: 256000});
 					break;
 				case 'Remote':
-					globals.serverMusic[server_id].dispatcher = connection.play(globals.serverMusic[server_id].queue[queue_pos].url, {highWaterMark: 1, passes: 3, bitrate: 256000});
+					globals.serverMusic[server_id].dispatcher = connection.play(globals.serverMusic[server_id].queue[queue_pos].url, {passes: 3, bitrate: 256000, highWaterMark: 1<<25});
 					break;
 			}
 			if (globals.serverMusic[server_id].loop_amt == 0) { 
@@ -54,7 +54,7 @@ module.exports = function updateMusicPlayback(globals, server_id) {
 			globals.serverMusic[server_id].dispatcher.on("error", (err) =>{
 				console.log("error in dispatcher: \n" + err);
 			});
-
+			
 			globals.serverMusic[server_id].dispatcher.on("finish", (reason)=>{ // Stream has ended.
 				if (globals.serverMusic[server_id].loop == 'single') globals.serverMusic[server_id].loop_amt += 1;
 				else {
