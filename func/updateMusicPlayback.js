@@ -37,9 +37,12 @@ function updateMusicPlayback(globals, server_id) {
 			switch (globals.serverMusic[server_id].queue[queue_pos].location) {
 				case 'YT':
 					globals.serverMusic[server_id].dispatcher = connection.play(ytdl(globals.serverMusic[server_id].queue[queue_pos].url, {filter:"audioonly", quality: "highestaudio", highWaterMark: 1<<25}), {highWaterMark: 1, passes: 3, bitrate: 256000});
-					createDispatcherListeners(globals, server_id);
 					break;
 				case 'Remote':
+					globals.serverMusic[server_id].dispatcher = connection.play(globals.serverMusic[server_id].queue[queue_pos].url, {highWaterMark: 50, passes: 3, bitrate: 256000});
+					break;
+					// This was a mitigation attempt that failed. Keeping it here for reference
+					/*
 					if (globals.serverMusic[server_id].queue[queue_pos].url.startsWith("https://")){
 						https.get(globals.serverMusic[server_id].queue[queue_pos].url, (response) => {
 							if (response.statusCode != 200) {
@@ -65,9 +68,10 @@ function updateMusicPlayback(globals, server_id) {
 							createDispatcherListeners(globals, server_id);
 						});
 					}
-					break;
-					
+					*/
 			}
+
+			createDispatcherListeners(globals, server_id);
 			if (globals.serverMusic[server_id].loop_amt == 0) { 
 				globals.serverMusic[server_id].queue[queue_pos].textChannel.send(new Discord.MessageEmbed({
 					author: {name: `Queued by ${globals.serverMusic[server_id].queue[queue_pos].user.tag}`, iconURL: globals.serverMusic[server_id].queue[queue_pos].user.avatarURL()},
