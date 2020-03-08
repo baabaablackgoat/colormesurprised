@@ -69,6 +69,9 @@ function updateMusicPlayback(globals, server_id) {
 						});
 					}
 					*/
+				case "Local":
+					globals.serverMusic[server_id].dispatcher = connection.play(globals.serverMusic[server_id].queue[queue_pos].url, {highWaterMark: 50, passes: 3, bitrate: 256000});
+					break;
 			}
 			createDispatcherListeners(globals, server_id);
 			if (globals.serverMusic[server_id].loop_amt == 0) { 

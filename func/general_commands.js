@@ -155,6 +155,17 @@ function play(msg, params, globals) {
 		return;
 	}
 
+	// This is for testing purposes only - needs to be worked upon
+	if (params[1] == "localfiletest"){
+		createServerMusicObject(globals, msg.guild.id);
+		globals.serverMusic[msg.guild.id].queue.push(new MusicQueueEntry("./data/CheckersKing.mp3", "localfiletest", Infinity, 'Local', msg));
+		if (globals.serverMusic[msg.guild.id].queue.length <= 1) {
+			updateMusicPlayback(globals, msg.guild.id);
+		}
+		msg.channel.send(config.replies.added_to_queue.replace("$title", "local file test (Checkers King by Toby Fox)"));
+		return;
+	}
+
 	let potentialURL = params[1].replace(/^<|>$/g,"");
 
 	if (potentialURL.startsWith("https://www.youtube.com/playlist?list=")) { // Oooo, a youtube playlist! TIME TO QUEUE ALL OF IT.
