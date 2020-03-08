@@ -105,6 +105,8 @@ module.exports = {
 		disconnect_not_in_channel: 'You\'re not connected to the current voice channel! ; w;',
 		disconnect_too_many_users: 'I won\'t listen to a disconnect while there\'s more than one person listening... vwv',
 		caught_disconnect_with_entries_in_queue: 'Hey, i\'ve been disconnected and I still got work to do! ;w; If you want me to leave, use the disconnect command...',
+		file_http_err: 'I encountered http code $code while requesting this file... I can\'t queue this ;w;',
+		file_http_genericErr: 'Something went wrong while dealing with your requested file... sorry ;w;',
 	},
 
 	// Roles that have any of these permissions are banned from being changed by this bot to avoid changing administrative colors.

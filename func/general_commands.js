@@ -7,6 +7,8 @@ const updateMusicPlayback = require('./updateMusicPlayback.js');
 const permissionCheck = require('./permissionCheck.js');
 const moment = require('moment');
 const getRepoInfo = require('git-repo-info');
+const http = require('http');
+const https = require('https');
 
 module.exports.play = play;
 module.exports.skip = skip;
@@ -40,20 +42,21 @@ function secondsToString(time) {
 }
 
 class MusicQueueEntry {
-	constructor(url, name, duration, msg){
+	constructor(url, name, duration, location, msg){
 		this.url = url;
 		this.name = name;
 		this.duration = {
 			total_seconds: duration,
 			string: secondsToString(duration)
 		};
+		this.location = location;
 		this.user = msg.author;
 		this.textChannel = msg.channel;
 		this.voiceChannel = msg.member.voice.channel;
 	}
 }
 
-function addToQueue(url, msg, globals) {
+function addYTToQueue(url, msg, globals) {
 	createServerMusicObject(globals, msg.guild.id);
 	ytdl.getInfo(url, {filter:"audioonly"}, (err, info)=>{
 		if (err) {
@@ -62,7 +65,7 @@ function addToQueue(url, msg, globals) {
 				.then(reply => {if (config.debug_mode) console.log("Notified member of failed YTDL request");})
 				.catch(err => console.log(`Failed to notify member of YTDL error, defails: ${err}`));
 		} else {
-			globals.serverMusic[msg.guild.id].queue.push(new MusicQueueEntry(info.video_url, info.title, parseInt(info.length_seconds), msg));
+			globals.serverMusic[msg.guild.id].queue.push(new MusicQueueEntry(info.video_url, info.title, parseInt(info.length_seconds), 'YT', msg));
 			if (globals.serverMusic[msg.guild.id].queue.length <= 1) {
 				updateMusicPlayback(globals, msg.guild.id);
 			}
@@ -71,6 +74,16 @@ function addToQueue(url, msg, globals) {
 				.catch(err => console.log(`Failed to notify member of queue addition, defails: ${err}`));
 		}
 	});
+}
+
+function addOnlineFileToQueue(url, msg, globals) {
+	createServerMusicObject(globals, msg.guild.id);
+	let parts = url.split('/');
+	globals.serverMusic[msg.guild.id].queue.push(new MusicQueueEntry(url, parts[parts.length - 1], Infinity, 'Remote', msg));
+	if (globals.serverMusic[msg.guild.id].queue.length <= 1) {
+		updateMusicPlayback(globals, msg.guild.id);
+	}
+	msg.channel.send(config.replies.added_to_queue.replace("$title", parts[parts.length - 1]));
 }
 
 function getNextPlaylistPage(totalQueuedItems, playlistID, msg, globals, pageToken = null) {
@@ -95,7 +108,7 @@ function getNextPlaylistPage(totalQueuedItems, playlistID, msg, globals, pageTok
 				// Add entry to this extra array to call the duration update function later
 				videoIDs.push(playlistData[i].snippet.resourceId.videoId);
 				// enqueue every (valid) video
-				globals.serverMusic[msg.guild.id].queue.push(new MusicQueueEntry("https://youtu.be/" + playlistData[i].snippet.resourceId.videoId, playlistData[i].snippet.title, 0, msg));
+				globals.serverMusic[msg.guild.id].queue.push(new MusicQueueEntry("https://youtu.be/" + playlistData[i].snippet.resourceId.videoId, playlistData[i].snippet.title, 0, 'YT', msg));
 			}
 		}
 
@@ -153,24 +166,35 @@ function play(msg, params, globals) {
 		return;
 	}
 
-	if (ytdl.validateURL(potentialURL)) addToQueue(potentialURL, msg, globals); // Youtube URL was found, go straight to addition
-	else {
-		let searchTerm = params.slice(1).join(" ");
-		msg.channel.send(config.replies.lookup_yt_start.replace('$searchTerm', searchTerm));
-		youtube.search.list({
-			auth: globals.googleJWTClient,
-			part: 'snippet',
-			maxResults: 1,
-			q: searchTerm
-		}, (err, response) =>{
-			if (err) {
-				msg.channel.send(config.replies.lookup_yt_error);
-				console.log('YouTube lookup encountered an API Error! Details:\n'+ err);
-			} else {
-				addToQueue(`https://youtu.be/${response.data.items[0].id.videoId}`, msg, globals);
-			}
-		});
+	// Check for YouTube URL
+	if (ytdl.validateURL(potentialURL)) {
+		addYTToQueue(potentialURL, msg, globals);
+		return;
 	}
+
+	// Check for online files
+	const onlineFileRegex = /^(https?):\/\/(www.)?(.*?)\.(mp3|ogg)$/;
+	if (onlineFileRegex.test(potentialURL)){
+		addOnlineFileToQueue(potentialURL, msg, globals);
+		return;
+	}
+
+	// None of the previous things worked - look up on da youtubes
+	let searchTerm = params.slice(1).join(" ");
+	msg.channel.send(config.replies.lookup_yt_start.replace('$searchTerm', searchTerm));
+	youtube.search.list({
+		auth: globals.googleJWTClient,
+		part: 'snippet',
+		maxResults: 1,
+		q: searchTerm
+	}, (err, response) =>{
+		if (err) {
+			msg.channel.send(config.replies.lookup_yt_error);
+			console.log('YouTube lookup encountered an API Error! Details:\n'+ err);
+		} else {
+			addYTToQueue(`https://youtu.be/${response.data.items[0].id.videoId}`, msg, globals);
+		}
+	});
 }
 
 function skip(msg, params, globals) {

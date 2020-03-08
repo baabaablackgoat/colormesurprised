@@ -30,7 +30,14 @@ module.exports = function updateMusicPlayback(globals, server_id) {
 	globals.serverMusic[server_id].queue[queue_pos].voiceChannel.join()
 		.then(connection => {
 			globals.serverMusic[server_id].voiceConnection = connection;
-			globals.serverMusic[server_id].dispatcher = connection.play(ytdl(globals.serverMusic[server_id].queue[queue_pos].url, {filter:"audioonly", quality: "highestaudio", highWaterMark: 1<<25}), {highWaterMark: 1, passes: 3, bitrate: 256000});
+			switch (globals.serverMusic[server_id].queue[queue_pos].location) {
+				case 'YT':
+					globals.serverMusic[server_id].dispatcher = connection.play(ytdl(globals.serverMusic[server_id].queue[queue_pos].url, {filter:"audioonly", quality: "highestaudio", highWaterMark: 1<<25}), {highWaterMark: 1, passes: 3, bitrate: 256000});
+					break;
+				case 'Remote':
+					globals.serverMusic[server_id].dispatcher = connection.play(globals.serverMusic[server_id].queue[queue_pos].url, {highWaterMark: 1, passes: 3, bitrate: 256000});
+					break;
+			}
 			if (globals.serverMusic[server_id].loop_amt == 0) { 
 				globals.serverMusic[server_id].queue[queue_pos].textChannel.send(new Discord.MessageEmbed({
 					author: {name: `Queued by ${globals.serverMusic[server_id].queue[queue_pos].user.tag}`, iconURL: globals.serverMusic[server_id].queue[queue_pos].user.avatarURL()},
