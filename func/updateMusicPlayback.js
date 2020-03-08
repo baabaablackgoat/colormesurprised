@@ -37,14 +37,15 @@ function updateMusicPlayback(globals, server_id) {
 			switch (globals.serverMusic[server_id].queue[queue_pos].location) {
 				case 'YT':
 					globals.serverMusic[server_id].dispatcher = connection.play(ytdl(globals.serverMusic[server_id].queue[queue_pos].url, {filter:"audioonly", quality: "highestaudio", highWaterMark: 1<<25}), {highWaterMark: 1, passes: 3, bitrate: 256000});
+					createDispatcherListeners(globals, server_id);
 					break;
 				case 'Remote':
+					/*
 					globals.serverMusic[server_id].dispatcher = connection.play(globals.serverMusic[server_id].queue[queue_pos].url, {highWaterMark: 50, passes: 3, bitrate: 256000});
 					break;
-					// This was a mitigation attempt that failed. Keeping it here for reference
-					/*
+					*/
 					if (globals.serverMusic[server_id].queue[queue_pos].url.startsWith("https://")){
-						https.get(globals.serverMusic[server_id].queue[queue_pos].url, (response) => {
+						https.get(globals.serverMusic[server_id].queue[queue_pos].url, {readableHighWaterMark: 1<<25}, (response) => {
 							if (response.statusCode != 200) {
 								globals.serverMusic[server_id].queue[queue_pos].textChannel.send(config.replies.remote_file_http_err.replace("$errCode", response.statusCode));
 								globals.serverMusic[server_id].loop_amt = 0;
@@ -52,11 +53,11 @@ function updateMusicPlayback(globals, server_id) {
 								updateMusicPlayback(globals, server_id);
 								return;
 							}
-							globals.serverMusic[server_id].dispatcher = connection.play(response, {passes: 3, bitrate: 256000, highWaterMark: 1<<25});
+							globals.serverMusic[server_id].dispatcher = connection.play(response, {passes: 3, bitrate: 256000, highWaterMark: 1});
 							createDispatcherListeners(globals, server_id);
 						});
 					} else {
-						http.get(globals.serverMusic[server_id].queue[queue_pos].url, (response) => {
+						http.get(globals.serverMusic[server_id].queue[queue_pos].url, {readableHighWaterMark: 1<<25},(response) => {
 							if (response.statusCode != 200) {
 								globals.serverMusic[server_id].queue[queue_pos].textChannel.send(config.replies.remote_file_http_err.replace("$errCode", response.statusCode));
 								globals.serverMusic[server_id].loop_amt = 0;
@@ -64,16 +65,17 @@ function updateMusicPlayback(globals, server_id) {
 								updateMusicPlayback(globals, server_id);
 								return;
 							}
-							globals.serverMusic[server_id].dispatcher = connection.play(response, {passes: 3, bitrate: 256000, highWaterMark: 1<<25});
+							globals.serverMusic[server_id].dispatcher = connection.play(response, {passes: 3, bitrate: 256000, highWaterMark: 1});
 							createDispatcherListeners(globals, server_id);
 						});
 					}
-					*/
+					break;
 				case "Local":
 					globals.serverMusic[server_id].dispatcher = connection.play(globals.serverMusic[server_id].queue[queue_pos].url, {highWaterMark: 50, passes: 3, bitrate: 256000});
+					createDispatcherListeners(globals, server_id);
 					break;
 			}
-			createDispatcherListeners(globals, server_id);
+			
 			if (globals.serverMusic[server_id].loop_amt == 0) { 
 				globals.serverMusic[server_id].queue[queue_pos].textChannel.send(new Discord.MessageEmbed({
 					author: {name: `Queued by ${globals.serverMusic[server_id].queue[queue_pos].user.tag}`, iconURL: globals.serverMusic[server_id].queue[queue_pos].user.avatarURL()},
