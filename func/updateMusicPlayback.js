@@ -46,10 +46,10 @@ module.exports = function updateMusicPlayback(globals, server_id) {
 				}));
 			}
 			
-			
+			/*
 			globals.serverMusic[server_id].voiceConnection.on("disconnect", () => {
 				// this fires on forceful channel switching too, right...?	
-			});
+			});*/
 
 			globals.serverMusic[server_id].dispatcher.on("error", (err) =>{
 				console.log("error in dispatcher: \n" + err);
