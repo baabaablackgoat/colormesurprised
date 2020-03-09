@@ -71,6 +71,7 @@ function updateMusicPlayback(globals, server_id) {
 					}
 					break;
 				case "Local":
+					// TODO This part needs to be adjusted to be similar to the "Remote" case - else playback might interrupt early!
 					globals.serverMusic[server_id].dispatcher = connection.play(globals.serverMusic[server_id].queue[queue_pos].url, {highWaterMark: 50, passes: 3, bitrate: 256000});
 					createDispatcherListeners(globals, server_id);
 					break;

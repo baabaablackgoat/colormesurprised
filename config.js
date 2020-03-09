@@ -33,10 +33,14 @@ module.exports = {
 		loop: 'loop',
 		new_nick: 'new_nick',
 		version: 'version',
+		shuffle: 'shuffle',
 	},
 
 	// Sets the ratio of how many people in the vc need to vote for a skip to skip the song. Will always be overridden by the person who queued the song or admins.
 	music_skip_ratio: 0.5,
+
+	// Sets the amount of maximum tracks that are allowed to play before the shuffle command is blocked (to prevent fuckery)
+	max_tracks_before_shuffle: 3,
 
 	// The status messages the bot shows!
 	activities: [
@@ -106,6 +110,8 @@ module.exports = {
 		disconnect_too_many_users: 'I won\'t listen to a disconnect while there\'s more than one person listening... vwv',
 		caught_disconnect_with_entries_in_queue: 'Hey, i\'ve been disconnected and I still got work to do! ;w; If you want me to leave, use the disconnect command...',
 		remote_file_http_err: 'Something went wrong while requesting this file (code $errCode)... I\'m sorry ;w;',
+		shuffle_queue_pos_threshold: 'Sorry, I won\'t shuffle the playlist if too many songs have already been played in the current queue ($maxTracks) to prevent people from abusing this to get their entry to play first! ;w;',
+		shuffle_success: '🎲 Queue has been shuffled! Restarting queue...',
 	},
 
 	// Roles that have any of these permissions are banned from being changed by this bot to avoid changing administrative colors.

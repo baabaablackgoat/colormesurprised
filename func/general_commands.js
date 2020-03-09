@@ -20,6 +20,7 @@ module.exports.disconnect = disconnect;
 module.exports.loop = loop;
 module.exports.new_nick = new_nick;
 module.exports.version = version;
+module.exports.shuffle = shuffle;
 
 function createServerMusicObject(globals, id) {
 	if (!(id in globals.serverMusic)) {
@@ -393,6 +394,28 @@ function disconnect(msg, params, globals){
 					}
 				});
 			});
+	}
+}
+
+function shuffleArray(a) { //courtesy of https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
+	for (let i = a.length - 1; i > 0; i--){
+		const j = Math.floor(Math.random() * (i+1));
+		[a[i], a[j]] = [a[j], a[i]];
+	}
+	return a;
+}
+
+function shuffle(msg, params, globals) {
+	if (globals.serverMusic[msg.guild.id] && globals.serverMusic[msg.guild.id].queue.length > 0) {
+		if (globals.serverMusic[msg.guild.id].queue_pos >= config.max_tracks_before_shuffle) {
+			msg.channel.send(config.replies.shuffle_queue_pos_threshold.replace("$maxTracks", config.max_tracks_before_shuffle));
+			return;
+		}
+		globals.serverMusic[msg.guild.id].queue = shuffleArray(globals.serverMusic[msg.guild.id].queue);
+		globals.serverMusic[msg.guild.id].queue_pos = 0;
+		globals.serverMusic[msg.guild.id].loop_amt = 0;
+		msg.channel.send(config.replies.shuffle_success);
+		updateMusicPlayback(globals, msg.guild.id);
 	}
 }
 
