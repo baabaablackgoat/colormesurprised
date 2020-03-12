@@ -21,6 +21,7 @@ module.exports.loop = loop;
 module.exports.new_nick = new_nick;
 module.exports.version = version;
 module.exports.shuffle = shuffle;
+module.exports.tumbledry = tumbledry;
 
 function createServerMusicObject(globals, id) {
 	if (!(id in globals.serverMusic)) {
@@ -335,7 +336,8 @@ function help(msg, params, globals) {
 			{name: "skip", value: "Votes to skip or autoskips if you queued the song"},
 			{name: "queue", value: "Shows (part of) the current queue"},
 			{name: "remove", value: "Removes an entry at the numbered position from the queue if you queued the song"},
-			{name: "loop", value: "Toggles between queue loop, single loop, or disables it"}
+			{name: "loop", value: "Toggles between queue loop, single loop, or disables it"},
+			{name: 'shuffle', value: "Shuffles the playlist!"},
 		],
 		footer: {
 			text: 'Made with ♡ by baa baa black goat',
@@ -406,16 +408,38 @@ function shuffleArray(a) { //courtesy of https://stackoverflow.com/questions/627
 }
 
 function shuffle(msg, params, globals) {
+	if (msg.member.voice.channel != globals.serverMusic[msg.guild.id].voiceConnection.channel) {
+		msg.channel.send(config.replies.shuffle_not_in_channel);
+		return;
+	}
+
 	if (globals.serverMusic[msg.guild.id] && globals.serverMusic[msg.guild.id].queue.length > 0) {
-		if (globals.serverMusic[msg.guild.id].queue_pos >= config.max_tracks_before_shuffle) {
-			msg.channel.send(config.replies.shuffle_queue_pos_threshold.replace("$maxTracks", config.max_tracks_before_shuffle));
+		if (params[1] == 'all') {
+			if (globals.serverMusic[msg.guild.id].queue_pos >= config.max_tracks_before_shuffle) {
+				msg.channel.send(config.replies.shuffle_queue_pos_threshold.replace("$maxTracks", config.max_tracks_before_shuffle));
+				return;
+			}
+			globals.serverMusic[msg.guild.id].queue = shuffleArray(globals.serverMusic[msg.guild.id].queue);
+			globals.serverMusic[msg.guild.id].queue_pos = 0;
+			globals.serverMusic[msg.guild.id].loop_amt = 0;
+			msg.channel.send(config.replies.shuffle_all_success);
+			updateMusicPlayback(globals, msg.guild.id);
 			return;
 		}
-		globals.serverMusic[msg.guild.id].queue = shuffleArray(globals.serverMusic[msg.guild.id].queue);
-		globals.serverMusic[msg.guild.id].queue_pos = 0;
-		globals.serverMusic[msg.guild.id].loop_amt = 0;
-		msg.channel.send(config.replies.shuffle_success);
-		updateMusicPlayback(globals, msg.guild.id);
+
+		if (globals.serverMusic[msg.guild.id].queue.length <= globals.serverMusic[msg.guild.id].queue_pos + 2) { // don't shuffle if 0 or 1 left after
+			msg.channel.send(config.replies.shuffle_nothing_left);
+			return;
+		}
+
+		let remainingQueue = globals.serverMusic[msg.guild.id].queue.slice(0, globals.serverMusic[msg.guild.id].queue_pos + 1);
+		let shuffled = shuffleArray(globals.serverMusic[msg.guild.id].queue.slice(globals.serverMusic[msg.guild.id].queue_pos + 1));
+		globals.serverMusic[msg.guild.id].queue = remainingQueue.concat(shuffled);
+		msg.channel.send(config.replies.shuffle_success.replace("$amount", shuffled.length));
+		return;
+	} else {
+		msg.channel.send(config.replies.shuffle_nothing_left);
+		return;
 	}
 }
 
@@ -433,4 +457,13 @@ function version(msg, params, globals) {
 		color: 0xf7069b,
 		description: `Running on commit ${gitInfo.abbreviatedSha} @${gitInfo.committerDate}\n\n\`${gitInfo.commitMessage}\`\n\nhttps://github.com/baabaablackgoat/colormesurprised/commit/${gitInfo.sha}`,
 	}));
+}
+
+function tumbledry(msg, params, globals){
+	msg.channel.send("aaaaAaaAaAaAaaaaAaaAaAaaAA",{
+		files: [{
+			attachment: './data/tumbledry.png',
+			name: 'kip_you_did_this.png'
+		}]
+	});
 }

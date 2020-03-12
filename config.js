@@ -34,6 +34,7 @@ module.exports = {
 		new_nick: 'new_nick',
 		version: 'version',
 		shuffle: 'shuffle',
+		tumbledry: 'tumbledry',
 	},
 
 	// Sets the ratio of how many people in the vc need to vote for a skip to skip the song. Will always be overridden by the person who queued the song or admins.
@@ -110,8 +111,11 @@ module.exports = {
 		disconnect_too_many_users: 'I won\'t listen to a disconnect while there\'s more than one person listening... vwv',
 		caught_disconnect_with_entries_in_queue: 'Hey, i\'ve been disconnected and I still got work to do! ;w; If you want me to leave, use the disconnect command...',
 		remote_file_http_err: 'Something went wrong while requesting this file (code $errCode)... I\'m sorry ;w;',
-		shuffle_queue_pos_threshold: 'Sorry, I won\'t shuffle the playlist if too many songs have already been played in the current queue ($maxTracks) to prevent people from abusing this to get their entry to play first! ;w;',
-		shuffle_success: '🎲 Queue has been shuffled! Restarting queue...',
+		shuffle_queue_pos_threshold: 'Sorry, I won\'t shuffle the entire playlist if too many songs have already been played in the current queue ($maxTracks) to prevent people from abusing this to get their entry to play first! ;w;',
+		shuffle_not_in_channel: 'You\'re not connected to the current voice channel! ; w;',
+		shuffle_all_success: '🎲 Queue has been shuffled! Restarting queue...',
+		shuffle_nothing_left: 'There\'s nothing left to shuffle... ;w;', 
+		shuffle_success: '🎲 $amount entries have been shuffled!',
 	},
 
 	// Roles that have any of these permissions are banned from being changed by this bot to avoid changing administrative colors.
