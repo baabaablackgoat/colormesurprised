@@ -9,7 +9,7 @@
     "git-repo-info": "^2.1.1",
     "google-auth-library": "^5.10.1",
     "googleapis": "^47.0.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "node-opus": "^0.3.3",
     "ytdl-core": "^2.0.0"
   },
